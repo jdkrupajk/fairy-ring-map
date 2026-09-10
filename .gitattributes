@@ -1,0 +1,12 @@
+# Line endings are a property of this repository, not of whoever cloned it.
+#
+# Without this file the result depends on each contributor's core.autocrlf, which
+# is machine configuration and does not travel with the code. That is how CRLF got
+# committed here in the first place.
+#
+# text=auto: git decides text vs binary per file, and stores every text file with LF.
+# eol=lf:    check text files out as LF on every platform.
+* text=auto eol=lf
+
+# Windows batch files are the exception - the interpreter depends on CRLF.
+*.bat text eol=crlf

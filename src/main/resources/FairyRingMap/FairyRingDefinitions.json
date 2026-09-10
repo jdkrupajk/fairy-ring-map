@@ -1,0 +1,3761 @@
+{
+  "map": {
+    "spriteWidth": 508,
+    "spriteHeight": 312,
+    "worldX0": 1088,
+    "worldY0": 2304,
+    "worldX1": 3904,
+    "worldY1": 4032
+  },
+  "inset": {
+    "cellWidth": 132,
+    "cellHeight": 100,
+    "pxPerTile": 1,
+    "cols": 8,
+    "rows": 7,
+    "sheetWidth": 1056,
+    "sheetHeight": 700
+  },
+  "rings": [
+    {
+      "code": "AIQ",
+      "destination": "Mudskipper Point",
+      "region": "Asgarnia",
+      "onSurface": true,
+      "worldX": 2996,
+      "worldY": 3114,
+      "insetCell": 0,
+      "insetIcons": [
+        {
+          "sprite": 1458,
+          "x": 69,
+          "y": 19
+        },
+        {
+          "sprite": 1534,
+          "x": 77,
+          "y": 13
+        },
+        {
+          "sprite": 1474,
+          "x": 66,
+          "y": 5
+        },
+        {
+          "sprite": 7285,
+          "x": 31,
+          "y": 16
+        },
+        {
+          "sprite": 1504,
+          "x": 25,
+          "y": 18
+        },
+        {
+          "sprite": 7284,
+          "x": 14,
+          "y": 15
+        },
+        {
+          "sprite": 7281,
+          "x": 11,
+          "y": 19
+        }
+      ]
+    },
+    {
+      "code": "AIR",
+      "destination": "(Island) South-east of Ardougne",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2700,
+      "worldY": 3247,
+      "insetCell": 1,
+      "insetIcons": [
+        {
+          "sprite": 1487,
+          "x": 88,
+          "y": 25
+        },
+        {
+          "sprite": 7285,
+          "x": 38,
+          "y": 31
+        },
+        {
+          "sprite": 1534,
+          "x": 62,
+          "y": 13
+        },
+        {
+          "sprite": 7281,
+          "x": 43,
+          "y": 19
+        },
+        {
+          "sprite": 1456,
+          "x": 99,
+          "y": 71
+        },
+        {
+          "sprite": 1483,
+          "x": 97,
+          "y": 22
+        },
+        {
+          "sprite": 1467,
+          "x": 89,
+          "y": 15
+        },
+        {
+          "sprite": 1504,
+          "x": 24,
+          "y": 64
+        },
+        {
+          "sprite": 1487,
+          "x": 24,
+          "y": 24
+        },
+        {
+          "sprite": 1473,
+          "x": 97,
+          "y": 4
+        },
+        {
+          "sprite": 1453,
+          "x": 23,
+          "y": 12
+        },
+        {
+          "sprite": 1460,
+          "x": 16,
+          "y": 83
+        },
+        {
+          "sprite": 7285,
+          "x": 124,
+          "y": 67
+        },
+        {
+          "sprite": 1495,
+          "x": 30,
+          "y": 0
+        },
+        {
+          "sprite": 1512,
+          "x": 13,
+          "y": 17
+        },
+        {
+          "sprite": 1454,
+          "x": 7,
+          "y": 78
+        },
+        {
+          "sprite": 1462,
+          "x": 19,
+          "y": 2
+        },
+        {
+          "sprite": 1504,
+          "x": 2,
+          "y": 28
+        },
+        {
+          "sprite": 1515,
+          "x": 7,
+          "y": 2
+        },
+        {
+          "sprite": 1486,
+          "x": 1,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "code": "AIS",
+      "destination": "Auburn Valley",
+      "region": "Varlamore",
+      "onSurface": true,
+      "worldX": 1429,
+      "worldY": 3324,
+      "insetCell": 2,
+      "insetIcons": [
+        {
+          "sprite": 4944,
+          "x": 75,
+          "y": 68
+        },
+        {
+          "sprite": 1461,
+          "x": 49,
+          "y": 30
+        },
+        {
+          "sprite": 1518,
+          "x": 91,
+          "y": 41
+        },
+        {
+          "sprite": 1482,
+          "x": 93,
+          "y": 52
+        },
+        {
+          "sprite": 1482,
+          "x": 69,
+          "y": 21
+        },
+        {
+          "sprite": 4944,
+          "x": 89,
+          "y": 31
+        },
+        {
+          "sprite": 1474,
+          "x": 96,
+          "y": 43
+        },
+        {
+          "sprite": 1488,
+          "x": 79,
+          "y": 22
+        },
+        {
+          "sprite": 1458,
+          "x": 42,
+          "y": 30
+        },
+        {
+          "sprite": 1451,
+          "x": 39,
+          "y": 32
+        },
+        {
+          "sprite": 4944,
+          "x": 34,
+          "y": 44
+        },
+        {
+          "sprite": 1512,
+          "x": 56,
+          "y": 19
+        },
+        {
+          "sprite": 1453,
+          "x": 53,
+          "y": 20
+        },
+        {
+          "sprite": 1518,
+          "x": 31,
+          "y": 51
+        },
+        {
+          "sprite": 1518,
+          "x": 33,
+          "y": 64
+        },
+        {
+          "sprite": 1487,
+          "x": 67,
+          "y": 14
+        },
+        {
+          "sprite": 1474,
+          "x": 31,
+          "y": 60
+        },
+        {
+          "sprite": 1474,
+          "x": 34,
+          "y": 69
+        },
+        {
+          "sprite": 1501,
+          "x": 87,
+          "y": 19
+        },
+        {
+          "sprite": 1482,
+          "x": 30,
+          "y": 34
+        },
+        {
+          "sprite": 4944,
+          "x": 49,
+          "y": 86
+        },
+        {
+          "sprite": 1518,
+          "x": 27,
+          "y": 64
+        },
+        {
+          "sprite": 1504,
+          "x": 48,
+          "y": 10
+        },
+        {
+          "sprite": 1453,
+          "x": 24,
+          "y": 63
+        },
+        {
+          "sprite": 1518,
+          "x": 39,
+          "y": 86
+        },
+        {
+          "sprite": 1454,
+          "x": 33,
+          "y": 17
+        },
+        {
+          "sprite": 1518,
+          "x": 24,
+          "y": 71
+        },
+        {
+          "sprite": 1479,
+          "x": 30,
+          "y": 19
+        },
+        {
+          "sprite": 1482,
+          "x": 18,
+          "y": 50
+        },
+        {
+          "sprite": 4944,
+          "x": 114,
+          "y": 40
+        },
+        {
+          "sprite": 1518,
+          "x": 115,
+          "y": 66
+        },
+        {
+          "sprite": 1483,
+          "x": 10,
+          "y": 59
+        },
+        {
+          "sprite": 1516,
+          "x": 32,
+          "y": 4
+        },
+        {
+          "sprite": 1448,
+          "x": 16,
+          "y": 22
+        },
+        {
+          "sprite": 1488,
+          "x": 19,
+          "y": 16
+        },
+        {
+          "sprite": 1482,
+          "x": 25,
+          "y": 92
+        },
+        {
+          "sprite": 1488,
+          "x": 16,
+          "y": 19
+        },
+        {
+          "sprite": 1518,
+          "x": 5,
+          "y": 48
+        },
+        {
+          "sprite": 1487,
+          "x": 7,
+          "y": 67
+        },
+        {
+          "sprite": 1482,
+          "x": 8,
+          "y": 29
+        }
+      ]
+    },
+    {
+      "code": "AJP",
+      "destination": "Avium Savannah",
+      "region": "Varlamore",
+      "onSurface": true,
+      "worldX": 1651,
+      "worldY": 3010,
+      "insetCell": 3,
+      "insetIcons": [
+        {
+          "sprite": 1511,
+          "x": 87,
+          "y": 58
+        },
+        {
+          "sprite": 1511,
+          "x": 32,
+          "y": 60
+        },
+        {
+          "sprite": 1456,
+          "x": 34,
+          "y": 68
+        },
+        {
+          "sprite": 1491,
+          "x": 70,
+          "y": 13
+        },
+        {
+          "sprite": 1467,
+          "x": 96,
+          "y": 26
+        },
+        {
+          "sprite": 1487,
+          "x": 85,
+          "y": 85
+        },
+        {
+          "sprite": 1454,
+          "x": 98,
+          "y": 84
+        },
+        {
+          "sprite": 1488,
+          "x": 56,
+          "y": 3
+        },
+        {
+          "sprite": 1482,
+          "x": 110,
+          "y": 70
+        },
+        {
+          "sprite": 1501,
+          "x": 99,
+          "y": 88
+        },
+        {
+          "sprite": 1504,
+          "x": 117,
+          "y": 22
+        },
+        {
+          "sprite": 1504,
+          "x": 0,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "code": "AJQ",
+      "destination": "Cave south of Dorgesh-Kaan",
+      "region": "Dungeons",
+      "onSurface": false,
+      "worldX": 2735,
+      "worldY": 5221,
+      "insetCell": 4,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 78,
+          "y": 41
+        },
+        {
+          "sprite": 1460,
+          "x": 42,
+          "y": 64
+        },
+        {
+          "sprite": 1474,
+          "x": 25,
+          "y": 45
+        },
+        {
+          "sprite": 1487,
+          "x": 33,
+          "y": 17
+        },
+        {
+          "sprite": 1521,
+          "x": 45,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "code": "AJR",
+      "destination": "Slayer cave",
+      "region": "Fremennik Province",
+      "onSurface": true,
+      "worldX": 2780,
+      "worldY": 3613,
+      "insetCell": 5,
+      "insetIcons": [
+        {
+          "sprite": 1534,
+          "x": 83,
+          "y": 47
+        },
+        {
+          "sprite": 1482,
+          "x": 25,
+          "y": 23
+        },
+        {
+          "sprite": 1488,
+          "x": 20,
+          "y": 80
+        },
+        {
+          "sprite": 1487,
+          "x": 19,
+          "y": 82
+        },
+        {
+          "sprite": 1534,
+          "x": 113,
+          "y": 15
+        },
+        {
+          "sprite": 1487,
+          "x": 33,
+          "y": 99
+        },
+        {
+          "sprite": 1509,
+          "x": 16,
+          "y": 83
+        },
+        {
+          "sprite": 1518,
+          "x": 8,
+          "y": 71
+        }
+      ]
+    },
+    {
+      "code": "AJS",
+      "destination": "Penguins near Miscellania",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2500,
+      "worldY": 3896,
+      "insetCell": 6,
+      "insetIcons": [
+        {
+          "sprite": 1504,
+          "x": 79,
+          "y": 59
+        },
+        {
+          "sprite": 1456,
+          "x": 93,
+          "y": 54
+        },
+        {
+          "sprite": 1473,
+          "x": 85,
+          "y": 79
+        },
+        {
+          "sprite": 1473,
+          "x": 79,
+          "y": 83
+        },
+        {
+          "sprite": 1498,
+          "x": 83,
+          "y": 83
+        },
+        {
+          "sprite": 1512,
+          "x": 74,
+          "y": 89
+        },
+        {
+          "sprite": 1458,
+          "x": 115,
+          "y": 49
+        },
+        {
+          "sprite": 1534,
+          "x": 75,
+          "y": 99
+        },
+        {
+          "sprite": 1468,
+          "x": 95,
+          "y": 92
+        },
+        {
+          "sprite": 1482,
+          "x": 117,
+          "y": 76
+        }
+      ]
+    },
+    {
+      "code": "AKP",
+      "destination": "Necropolis",
+      "region": "Kharidian Desert",
+      "onSurface": true,
+      "worldX": 3284,
+      "worldY": 2706,
+      "insetCell": 7,
+      "insetIcons": [
+        {
+          "sprite": 1518,
+          "x": 74,
+          "y": 55
+        },
+        {
+          "sprite": 1518,
+          "x": 76,
+          "y": 49
+        },
+        {
+          "sprite": 1511,
+          "x": 68,
+          "y": 16
+        },
+        {
+          "sprite": 1456,
+          "x": 102,
+          "y": 47
+        },
+        {
+          "sprite": 1487,
+          "x": 63,
+          "y": 2
+        },
+        {
+          "sprite": 1496,
+          "x": 66,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "code": "AKQ",
+      "destination": "Piscatoris Hunter area",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2319,
+      "worldY": 3619,
+      "insetCell": 8,
+      "insetIcons": [
+        {
+          "sprite": 1482,
+          "x": 63,
+          "y": 58
+        },
+        {
+          "sprite": 1456,
+          "x": 85,
+          "y": 28
+        },
+        {
+          "sprite": 1511,
+          "x": 83,
+          "y": 84
+        },
+        {
+          "sprite": 1534,
+          "x": 25,
+          "y": 57
+        },
+        {
+          "sprite": 1454,
+          "x": 93,
+          "y": 16
+        },
+        {
+          "sprite": 1504,
+          "x": 104,
+          "y": 27
+        },
+        {
+          "sprite": 1487,
+          "x": 74,
+          "y": 1
+        },
+        {
+          "sprite": 1488,
+          "x": 64,
+          "y": 0
+        },
+        {
+          "sprite": 1511,
+          "x": 127,
+          "y": 69
+        }
+      ]
+    },
+    {
+      "code": "AKR",
+      "destination": "Hosidius Vinery",
+      "region": "Great Kourend",
+      "onSurface": true,
+      "worldX": 1826,
+      "worldY": 3540,
+      "insetCell": 9,
+      "insetIcons": [
+        {
+          "sprite": 1487,
+          "x": 61,
+          "y": 35
+        },
+        {
+          "sprite": 1487,
+          "x": 62,
+          "y": 73
+        },
+        {
+          "sprite": 1501,
+          "x": 46,
+          "y": 33
+        },
+        {
+          "sprite": 1453,
+          "x": 49,
+          "y": 22
+        },
+        {
+          "sprite": 1487,
+          "x": 75,
+          "y": 87
+        },
+        {
+          "sprite": 1487,
+          "x": 29,
+          "y": 63
+        },
+        {
+          "sprite": 1460,
+          "x": 28,
+          "y": 67
+        },
+        {
+          "sprite": 1488,
+          "x": 26,
+          "y": 64
+        },
+        {
+          "sprite": 1487,
+          "x": 48,
+          "y": 89
+        },
+        {
+          "sprite": 1486,
+          "x": 37,
+          "y": 88
+        },
+        {
+          "sprite": 1454,
+          "x": 22,
+          "y": 19
+        },
+        {
+          "sprite": 1488,
+          "x": 16,
+          "y": 26
+        },
+        {
+          "sprite": 1487,
+          "x": 12,
+          "y": 22
+        },
+        {
+          "sprite": 1487,
+          "x": 2,
+          "y": 23
+        },
+        {
+          "sprite": 1448,
+          "x": 13,
+          "y": 1
+        },
+        {
+          "sprite": 1487,
+          "x": 2,
+          "y": 13
+        }
+      ]
+    },
+    {
+      "code": "AKS",
+      "destination": "Feldip Hunter area",
+      "region": "Feldip Hills",
+      "onSurface": true,
+      "worldX": 2571,
+      "worldY": 2956,
+      "insetCell": 10,
+      "insetIcons": [
+        {
+          "sprite": 1456,
+          "x": 63,
+          "y": 44
+        },
+        {
+          "sprite": 1504,
+          "x": 36,
+          "y": 36
+        },
+        {
+          "sprite": 1456,
+          "x": 75,
+          "y": 7
+        },
+        {
+          "sprite": 1511,
+          "x": 53,
+          "y": 93
+        },
+        {
+          "sprite": 1672,
+          "x": 19,
+          "y": 87
+        },
+        {
+          "sprite": 1454,
+          "x": 125,
+          "y": 24
+        }
+      ]
+    },
+    {
+      "code": "ALP",
+      "destination": "(Island) Lighthouse",
+      "region": "Fremennik Province",
+      "onSurface": true,
+      "worldX": 2503,
+      "worldY": 3636,
+      "insetCell": 11,
+      "insetIcons": [
+        {
+          "sprite": 1454,
+          "x": 71,
+          "y": 50
+        },
+        {
+          "sprite": 1460,
+          "x": 72,
+          "y": 41
+        }
+      ]
+    },
+    {
+      "code": "ALQ",
+      "destination": "Haunted Woods east of Canifis",
+      "region": "Morytania",
+      "onSurface": true,
+      "worldX": 3597,
+      "worldY": 3495,
+      "insetCell": 12,
+      "insetIcons": [
+        {
+          "sprite": 1501,
+          "x": 68,
+          "y": 20
+        },
+        {
+          "sprite": 1487,
+          "x": 57,
+          "y": 15
+        },
+        {
+          "sprite": 1506,
+          "x": 97,
+          "y": 19
+        },
+        {
+          "sprite": 1534,
+          "x": 121,
+          "y": 25
+        },
+        {
+          "sprite": 1497,
+          "x": 12,
+          "y": 81
+        },
+        {
+          "sprite": 1534,
+          "x": 12,
+          "y": 83
+        },
+        {
+          "sprite": 1448,
+          "x": 127,
+          "y": 70
+        },
+        {
+          "sprite": 1511,
+          "x": 5,
+          "y": 99
+        }
+      ]
+    },
+    {
+      "code": "ALR",
+      "destination": "Abyssal Area",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 3059,
+      "worldY": 4875,
+      "insetCell": 13,
+      "insetIcons": []
+    },
+    {
+      "code": "ALS",
+      "destination": "McGrubor\u0027s Wood",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2644,
+      "worldY": 3495,
+      "insetCell": 14,
+      "insetIcons": [
+        {
+          "sprite": 1501,
+          "x": 84,
+          "y": 21
+        },
+        {
+          "sprite": 1479,
+          "x": 113,
+          "y": 55
+        },
+        {
+          "sprite": 1518,
+          "x": 21,
+          "y": 69
+        },
+        {
+          "sprite": 1456,
+          "x": 120,
+          "y": 38
+        },
+        {
+          "sprite": 1487,
+          "x": 121,
+          "y": 71
+        },
+        {
+          "sprite": 1467,
+          "x": 116,
+          "y": 84
+        },
+        {
+          "sprite": 1456,
+          "x": 3,
+          "y": 60
+        },
+        {
+          "sprite": 1458,
+          "x": 131,
+          "y": 53
+        }
+      ]
+    },
+    {
+      "code": "BIP",
+      "destination": "(Island) South-west of Mort Myre",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 3410,
+      "worldY": 3324,
+      "insetCell": 15,
+      "insetIcons": [
+        {
+          "sprite": 1518,
+          "x": 75,
+          "y": 47
+        },
+        {
+          "sprite": 1482,
+          "x": 25,
+          "y": 61
+        },
+        {
+          "sprite": 1454,
+          "x": 21,
+          "y": 38
+        },
+        {
+          "sprite": 1486,
+          "x": 19,
+          "y": 55
+        },
+        {
+          "sprite": 1454,
+          "x": 20,
+          "y": 32
+        },
+        {
+          "sprite": 1467,
+          "x": 32,
+          "y": 88
+        },
+        {
+          "sprite": 1490,
+          "x": 13,
+          "y": 40
+        },
+        {
+          "sprite": 1482,
+          "x": 12,
+          "y": 61
+        }
+      ]
+    },
+    {
+      "code": "BIQ",
+      "destination": "Kalphite Hive",
+      "region": "Kharidian Desert",
+      "onSurface": true,
+      "worldX": 3251,
+      "worldY": 3095,
+      "insetCell": 16,
+      "insetIcons": [
+        {
+          "sprite": 1534,
+          "x": 42,
+          "y": 36
+        },
+        {
+          "sprite": 1504,
+          "x": 54,
+          "y": 3
+        },
+        {
+          "sprite": 1504,
+          "x": 85,
+          "y": 2
+        },
+        {
+          "sprite": 1474,
+          "x": 91,
+          "y": 4
+        },
+        {
+          "sprite": 1522,
+          "x": 114,
+          "y": 23
+        },
+        {
+          "sprite": 1454,
+          "x": 118,
+          "y": 31
+        },
+        {
+          "sprite": 1518,
+          "x": 26,
+          "y": 9
+        },
+        {
+          "sprite": 1453,
+          "x": 123,
+          "y": 25
+        },
+        {
+          "sprite": 1504,
+          "x": 127,
+          "y": 37
+        },
+        {
+          "sprite": 1512,
+          "x": 125,
+          "y": 20
+        }
+      ]
+    },
+    {
+      "code": "BIS",
+      "destination": "Ardougne Zoo - Unicorns",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2635,
+      "worldY": 3266,
+      "insetCell": 17,
+      "insetIcons": [
+        {
+          "sprite": 1512,
+          "x": 78,
+          "y": 36
+        },
+        {
+          "sprite": 1487,
+          "x": 89,
+          "y": 43
+        },
+        {
+          "sprite": 1487,
+          "x": 44,
+          "y": 60
+        },
+        {
+          "sprite": 1454,
+          "x": 37,
+          "y": 51
+        },
+        {
+          "sprite": 1453,
+          "x": 88,
+          "y": 31
+        },
+        {
+          "sprite": 1534,
+          "x": 63,
+          "y": 21
+        },
+        {
+          "sprite": 1523,
+          "x": 54,
+          "y": 23
+        },
+        {
+          "sprite": 1515,
+          "x": 72,
+          "y": 21
+        },
+        {
+          "sprite": 1486,
+          "x": 66,
+          "y": 20
+        },
+        {
+          "sprite": 1462,
+          "x": 84,
+          "y": 21
+        },
+        {
+          "sprite": 1488,
+          "x": 79,
+          "y": 17
+        },
+        {
+          "sprite": 7285,
+          "x": 103,
+          "y": 50
+        },
+        {
+          "sprite": 1448,
+          "x": 43,
+          "y": 21
+        },
+        {
+          "sprite": 1454,
+          "x": 48,
+          "y": 16
+        },
+        {
+          "sprite": 1496,
+          "x": 90,
+          "y": 18
+        },
+        {
+          "sprite": 1504,
+          "x": 89,
+          "y": 83
+        },
+        {
+          "sprite": 1454,
+          "x": 25,
+          "y": 50
+        },
+        {
+          "sprite": 1495,
+          "x": 95,
+          "y": 19
+        },
+        {
+          "sprite": 7281,
+          "x": 108,
+          "y": 38
+        },
+        {
+          "sprite": 1477,
+          "x": 88,
+          "y": 12
+        },
+        {
+          "sprite": 1501,
+          "x": 47,
+          "y": 91
+        },
+        {
+          "sprite": 1487,
+          "x": 61,
+          "y": 4
+        },
+        {
+          "sprite": 1487,
+          "x": 72,
+          "y": 4
+        },
+        {
+          "sprite": 1467,
+          "x": 49,
+          "y": 6
+        },
+        {
+          "sprite": 1454,
+          "x": 72,
+          "y": 97
+        },
+        {
+          "sprite": 1456,
+          "x": 31,
+          "y": 83
+        },
+        {
+          "sprite": 1470,
+          "x": 99,
+          "y": 12
+        },
+        {
+          "sprite": 1484,
+          "x": 87,
+          "y": 4
+        },
+        {
+          "sprite": 1497,
+          "x": 105,
+          "y": 17
+        },
+        {
+          "sprite": 1494,
+          "x": 89,
+          "y": 1
+        },
+        {
+          "sprite": 1484,
+          "x": 99,
+          "y": 5
+        },
+        {
+          "sprite": 1477,
+          "x": 94,
+          "y": 1
+        },
+        {
+          "sprite": 1534,
+          "x": 18,
+          "y": 80
+        },
+        {
+          "sprite": 1457,
+          "x": 33,
+          "y": 4
+        },
+        {
+          "sprite": 1504,
+          "x": 8,
+          "y": 53
+        },
+        {
+          "sprite": 1534,
+          "x": 127,
+          "y": 32
+        },
+        {
+          "sprite": 1488,
+          "x": 4,
+          "y": 67
+        },
+        {
+          "sprite": 1454,
+          "x": 1,
+          "y": 39
+        },
+        {
+          "sprite": 1504,
+          "x": 131,
+          "y": 66
+        },
+        {
+          "sprite": 1454,
+          "x": 0,
+          "y": 66
+        }
+      ]
+    },
+    {
+      "code": "BJP",
+      "destination": "(Island) Isle of Souls",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2267,
+      "worldY": 2976,
+      "insetCell": 18,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 80,
+          "y": 50
+        },
+        {
+          "sprite": 1511,
+          "x": 7,
+          "y": 61
+        }
+      ]
+    },
+    {
+      "code": "BJR",
+      "destination": "Realm of the Fisher King",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 2650,
+      "worldY": 4730,
+      "insetCell": 19,
+      "insetIcons": [
+        {
+          "sprite": 1488,
+          "x": 46,
+          "y": 48
+        },
+        {
+          "sprite": 1474,
+          "x": 85,
+          "y": 69
+        },
+        {
+          "sprite": 1474,
+          "x": 90,
+          "y": 71
+        },
+        {
+          "sprite": 1474,
+          "x": 96,
+          "y": 77
+        }
+      ]
+    },
+    {
+      "code": "BJS",
+      "destination": "(Island) Near Zul-Andra",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2150,
+      "worldY": 3070,
+      "insetCell": 20,
+      "insetIcons": [
+        {
+          "sprite": 1518,
+          "x": 73,
+          "y": 46
+        },
+        {
+          "sprite": 1474,
+          "x": 100,
+          "y": 51
+        },
+        {
+          "sprite": 1474,
+          "x": 112,
+          "y": 52
+        },
+        {
+          "sprite": 1504,
+          "x": 129,
+          "y": 18
+        }
+      ]
+    },
+    {
+      "code": "BKP",
+      "destination": "South of Castle Wars",
+      "region": "Feldip Hills",
+      "onSurface": true,
+      "worldX": 2385,
+      "worldY": 3035,
+      "insetCell": 21,
+      "insetIcons": [
+        {
+          "sprite": 1534,
+          "x": 93,
+          "y": 23
+        },
+        {
+          "sprite": 1482,
+          "x": 15,
+          "y": 35
+        },
+        {
+          "sprite": 4946,
+          "x": 120,
+          "y": 54
+        },
+        {
+          "sprite": 1454,
+          "x": 124,
+          "y": 33
+        },
+        {
+          "sprite": 1487,
+          "x": 112,
+          "y": 7
+        },
+        {
+          "sprite": 4947,
+          "x": 129,
+          "y": 63
+        },
+        {
+          "sprite": 1512,
+          "x": 121,
+          "y": 2
+        },
+        {
+          "sprite": 1453,
+          "x": 126,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "code": "BKQ",
+      "destination": "Enchanted Valley",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 3041,
+      "worldY": 4532,
+      "insetCell": 22,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 67,
+          "y": 71
+        },
+        {
+          "sprite": 1456,
+          "x": 50,
+          "y": 91
+        }
+      ]
+    },
+    {
+      "code": "BKR",
+      "destination": "Mort Myre Swamp, south of Canifis",
+      "region": "Morytania",
+      "onSurface": true,
+      "worldX": 3469,
+      "worldY": 3431,
+      "insetCell": 23,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 78,
+          "y": 47
+        },
+        {
+          "sprite": 1474,
+          "x": 83,
+          "y": 32
+        },
+        {
+          "sprite": 1474,
+          "x": 30,
+          "y": 65
+        },
+        {
+          "sprite": 1534,
+          "x": 92,
+          "y": 16
+        },
+        {
+          "sprite": 1460,
+          "x": 106,
+          "y": 32
+        },
+        {
+          "sprite": 1501,
+          "x": 47,
+          "y": 9
+        },
+        {
+          "sprite": 1504,
+          "x": 44,
+          "y": 8
+        },
+        {
+          "sprite": 1474,
+          "x": 23,
+          "y": 71
+        },
+        {
+          "sprite": 1479,
+          "x": 94,
+          "y": 11
+        },
+        {
+          "sprite": 1522,
+          "x": 62,
+          "y": 2
+        },
+        {
+          "sprite": 1454,
+          "x": 100,
+          "y": 3
+        },
+        {
+          "sprite": 1518,
+          "x": 20,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "code": "BKS",
+      "destination": "Zanaris",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 2412,
+      "worldY": 4434,
+      "insetCell": 24,
+      "insetIcons": [
+        {
+          "sprite": 1487,
+          "x": 64,
+          "y": 41
+        },
+        {
+          "sprite": 1487,
+          "x": 64,
+          "y": 33
+        },
+        {
+          "sprite": 1486,
+          "x": 80,
+          "y": 38
+        },
+        {
+          "sprite": 1491,
+          "x": 57,
+          "y": 26
+        },
+        {
+          "sprite": 1509,
+          "x": 60,
+          "y": 24
+        },
+        {
+          "sprite": 1521,
+          "x": 93,
+          "y": 41
+        },
+        {
+          "sprite": 1488,
+          "x": 37,
+          "y": 44
+        },
+        {
+          "sprite": 1690,
+          "x": 90,
+          "y": 32
+        },
+        {
+          "sprite": 1482,
+          "x": 67,
+          "y": 19
+        },
+        {
+          "sprite": 1499,
+          "x": 98,
+          "y": 51
+        },
+        {
+          "sprite": 1518,
+          "x": 63,
+          "y": 82
+        },
+        {
+          "sprite": 1518,
+          "x": 54,
+          "y": 80
+        },
+        {
+          "sprite": 1512,
+          "x": 37,
+          "y": 28
+        },
+        {
+          "sprite": 1448,
+          "x": 31,
+          "y": 36
+        },
+        {
+          "sprite": 1453,
+          "x": 36,
+          "y": 23
+        },
+        {
+          "sprite": 1457,
+          "x": 54,
+          "y": 10
+        },
+        {
+          "sprite": 1482,
+          "x": 120,
+          "y": 56
+        },
+        {
+          "sprite": 1504,
+          "x": 106,
+          "y": 12
+        },
+        {
+          "sprite": 1470,
+          "x": 130,
+          "y": 15
+        }
+      ]
+    },
+    {
+      "code": "BLP",
+      "destination": "TzHaar area",
+      "region": "Dungeons",
+      "onSurface": false,
+      "worldX": 2437,
+      "worldY": 5126,
+      "insetCell": 25,
+      "insetIcons": [
+        {
+          "sprite": 1522,
+          "x": 82,
+          "y": 42
+        },
+        {
+          "sprite": 1474,
+          "x": 73,
+          "y": 71
+        },
+        {
+          "sprite": 1450,
+          "x": 91,
+          "y": 51
+        },
+        {
+          "sprite": 1457,
+          "x": 76,
+          "y": 22
+        },
+        {
+          "sprite": 1470,
+          "x": 93,
+          "y": 27
+        },
+        {
+          "sprite": 1486,
+          "x": 67,
+          "y": 7
+        },
+        {
+          "sprite": 1449,
+          "x": 106,
+          "y": 29
+        },
+        {
+          "sprite": 1456,
+          "x": 88,
+          "y": 8
+        },
+        {
+          "sprite": 1512,
+          "x": 77,
+          "y": 1
+        },
+        {
+          "sprite": 1486,
+          "x": 125,
+          "y": 57
+        },
+        {
+          "sprite": 1474,
+          "x": 106,
+          "y": 98
+        }
+      ]
+    },
+    {
+      "code": "BLQ",
+      "destination": "Yu\u0027biusk",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 3572,
+      "worldY": 4372,
+      "insetCell": 26,
+      "insetIcons": []
+    },
+    {
+      "code": "BLR",
+      "destination": "Legends\u0027 Guild",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2740,
+      "worldY": 3351,
+      "insetCell": 27,
+      "insetIcons": [
+        {
+          "sprite": 1482,
+          "x": 60,
+          "y": 66
+        },
+        {
+          "sprite": 1487,
+          "x": 59,
+          "y": 30
+        },
+        {
+          "sprite": 1454,
+          "x": 49,
+          "y": 34
+        },
+        {
+          "sprite": 1534,
+          "x": 50,
+          "y": 25
+        },
+        {
+          "sprite": 1456,
+          "x": 36,
+          "y": 69
+        },
+        {
+          "sprite": 1482,
+          "x": 39,
+          "y": 18
+        },
+        {
+          "sprite": 7285,
+          "x": 73,
+          "y": 96
+        },
+        {
+          "sprite": 1456,
+          "x": 21,
+          "y": 68
+        },
+        {
+          "sprite": 1504,
+          "x": 49,
+          "y": 96
+        },
+        {
+          "sprite": 4947,
+          "x": 109,
+          "y": 81
+        },
+        {
+          "sprite": 1454,
+          "x": 42,
+          "y": 98
+        },
+        {
+          "sprite": 1482,
+          "x": 31,
+          "y": 3
+        },
+        {
+          "sprite": 1504,
+          "x": 8,
+          "y": 76
+        },
+        {
+          "sprite": 1487,
+          "x": 4,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "code": "BLS",
+      "destination": "South of Mount Quidamortem",
+      "region": "Kebos Lowlands",
+      "onSurface": true,
+      "worldX": 1295,
+      "worldY": 3493,
+      "insetCell": 28,
+      "insetIcons": [
+        {
+          "sprite": 1454,
+          "x": 83,
+          "y": 70
+        },
+        {
+          "sprite": 1504,
+          "x": 42,
+          "y": 65
+        },
+        {
+          "sprite": 1474,
+          "x": 37,
+          "y": 1
+        },
+        {
+          "sprite": 1474,
+          "x": 25,
+          "y": 0
+        },
+        {
+          "sprite": 1504,
+          "x": 0,
+          "y": 72
+        }
+      ]
+    },
+    {
+      "code": "CIP",
+      "destination": "(Island) Miscellania",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2513,
+      "worldY": 3884,
+      "insetCell": 29,
+      "insetIcons": [
+        {
+          "sprite": 1456,
+          "x": 80,
+          "y": 42
+        },
+        {
+          "sprite": 1473,
+          "x": 72,
+          "y": 67
+        },
+        {
+          "sprite": 1504,
+          "x": 53,
+          "y": 35
+        },
+        {
+          "sprite": 1473,
+          "x": 66,
+          "y": 71
+        },
+        {
+          "sprite": 1498,
+          "x": 70,
+          "y": 71
+        },
+        {
+          "sprite": 1512,
+          "x": 61,
+          "y": 77
+        },
+        {
+          "sprite": 1468,
+          "x": 82,
+          "y": 80
+        },
+        {
+          "sprite": 1534,
+          "x": 62,
+          "y": 87
+        },
+        {
+          "sprite": 1458,
+          "x": 102,
+          "y": 37
+        },
+        {
+          "sprite": 1482,
+          "x": 104,
+          "y": 64
+        },
+        {
+          "sprite": 1518,
+          "x": 126,
+          "y": 71
+        },
+        {
+          "sprite": 1474,
+          "x": 131,
+          "y": 79
+        }
+      ]
+    },
+    {
+      "code": "CIQ",
+      "destination": "North-west of Yanille",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2528,
+      "worldY": 3127,
+      "insetCell": 30,
+      "insetIcons": [
+        {
+          "sprite": 1521,
+          "x": 81,
+          "y": 72
+        },
+        {
+          "sprite": 1487,
+          "x": 68,
+          "y": 23
+        },
+        {
+          "sprite": 1460,
+          "x": 71,
+          "y": 21
+        },
+        {
+          "sprite": 1487,
+          "x": 95,
+          "y": 62
+        },
+        {
+          "sprite": 1487,
+          "x": 87,
+          "y": 74
+        },
+        {
+          "sprite": 1505,
+          "x": 82,
+          "y": 79
+        },
+        {
+          "sprite": 1454,
+          "x": 90,
+          "y": 75
+        },
+        {
+          "sprite": 1488,
+          "x": 87,
+          "y": 78
+        },
+        {
+          "sprite": 1448,
+          "x": 65,
+          "y": 15
+        },
+        {
+          "sprite": 1512,
+          "x": 68,
+          "y": 14
+        },
+        {
+          "sprite": 1534,
+          "x": 107,
+          "y": 54
+        },
+        {
+          "sprite": 1479,
+          "x": 104,
+          "y": 34
+        },
+        {
+          "sprite": 1504,
+          "x": 77,
+          "y": 10
+        },
+        {
+          "sprite": 1488,
+          "x": 105,
+          "y": 72
+        },
+        {
+          "sprite": 1454,
+          "x": 81,
+          "y": 7
+        },
+        {
+          "sprite": 1454,
+          "x": 78,
+          "y": 5
+        },
+        {
+          "sprite": 1485,
+          "x": 104,
+          "y": 78
+        },
+        {
+          "sprite": 1509,
+          "x": 108,
+          "y": 74
+        },
+        {
+          "sprite": 1487,
+          "x": 91,
+          "y": 7
+        },
+        {
+          "sprite": 1518,
+          "x": 113,
+          "y": 67
+        },
+        {
+          "sprite": 1501,
+          "x": 111,
+          "y": 74
+        },
+        {
+          "sprite": 1487,
+          "x": 105,
+          "y": 83
+        },
+        {
+          "sprite": 1487,
+          "x": 102,
+          "y": 10
+        },
+        {
+          "sprite": 1479,
+          "x": 94,
+          "y": 98
+        },
+        {
+          "sprite": 1690,
+          "x": 122,
+          "y": 55
+        },
+        {
+          "sprite": 1513,
+          "x": 104,
+          "y": 94
+        },
+        {
+          "sprite": 1487,
+          "x": 101,
+          "y": 3
+        },
+        {
+          "sprite": 1474,
+          "x": 5,
+          "y": 25
+        },
+        {
+          "sprite": 1504,
+          "x": 131,
+          "y": 87
+        }
+      ]
+    },
+    {
+      "code": "CIR",
+      "destination": "North-east of the Farming Guild",
+      "region": "Kebos Lowlands",
+      "onSurface": true,
+      "worldX": 1302,
+      "worldY": 3762,
+      "insetCell": 31,
+      "insetIcons": [
+        {
+          "sprite": 1482,
+          "x": 58,
+          "y": 55
+        },
+        {
+          "sprite": 1499,
+          "x": 73,
+          "y": 27
+        },
+        {
+          "sprite": 1518,
+          "x": 89,
+          "y": 29
+        },
+        {
+          "sprite": 1451,
+          "x": 60,
+          "y": 15
+        },
+        {
+          "sprite": 1518,
+          "x": 87,
+          "y": 20
+        },
+        {
+          "sprite": 1487,
+          "x": 64,
+          "y": 90
+        },
+        {
+          "sprite": 1501,
+          "x": 29,
+          "y": 66
+        },
+        {
+          "sprite": 1690,
+          "x": 69,
+          "y": 92
+        },
+        {
+          "sprite": 1501,
+          "x": 34,
+          "y": 81
+        },
+        {
+          "sprite": 1534,
+          "x": 73,
+          "y": 4
+        },
+        {
+          "sprite": 1501,
+          "x": 19,
+          "y": 58
+        },
+        {
+          "sprite": 1487,
+          "x": 112,
+          "y": 68
+        },
+        {
+          "sprite": 1453,
+          "x": 17,
+          "y": 68
+        },
+        {
+          "sprite": 1457,
+          "x": 89,
+          "y": 3
+        },
+        {
+          "sprite": 1501,
+          "x": 24,
+          "y": 82
+        },
+        {
+          "sprite": 1453,
+          "x": 13,
+          "y": 51
+        },
+        {
+          "sprite": 1487,
+          "x": 12,
+          "y": 57
+        },
+        {
+          "sprite": 1512,
+          "x": 16,
+          "y": 72
+        },
+        {
+          "sprite": 1487,
+          "x": 20,
+          "y": 80
+        },
+        {
+          "sprite": 1506,
+          "x": 15,
+          "y": 76
+        },
+        {
+          "sprite": 1487,
+          "x": 10,
+          "y": 68
+        },
+        {
+          "sprite": 1501,
+          "x": 7,
+          "y": 56
+        },
+        {
+          "sprite": 1482,
+          "x": 118,
+          "y": 80
+        },
+        {
+          "sprite": 1692,
+          "x": 10,
+          "y": 77
+        },
+        {
+          "sprite": 1506,
+          "x": 7,
+          "y": 71
+        },
+        {
+          "sprite": 1487,
+          "x": 12,
+          "y": 82
+        },
+        {
+          "sprite": 1482,
+          "x": 2,
+          "y": 41
+        },
+        {
+          "sprite": 1487,
+          "x": 5,
+          "y": 80
+        },
+        {
+          "sprite": 1501,
+          "x": 0,
+          "y": 87
+        }
+      ]
+    },
+    {
+      "code": "CIS",
+      "destination": "North of the Arceuus Library",
+      "region": "Great Kourend",
+      "onSurface": true,
+      "worldX": 1639,
+      "worldY": 3868,
+      "insetCell": 32,
+      "insetIcons": []
+    },
+    {
+      "code": "CJQ",
+      "destination": "The Great Conch",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 3178,
+      "worldY": 2447,
+      "insetCell": 33,
+      "insetIcons": [
+        {
+          "sprite": 1518,
+          "x": 69,
+          "y": 63
+        },
+        {
+          "sprite": 1457,
+          "x": 62,
+          "y": 66
+        },
+        {
+          "sprite": 1458,
+          "x": 66,
+          "y": 68
+        },
+        {
+          "sprite": 1474,
+          "x": 83,
+          "y": 59
+        },
+        {
+          "sprite": 1453,
+          "x": 69,
+          "y": 77
+        },
+        {
+          "sprite": 1449,
+          "x": 58,
+          "y": 80
+        },
+        {
+          "sprite": 1487,
+          "x": 77,
+          "y": 80
+        },
+        {
+          "sprite": 1534,
+          "x": 64,
+          "y": 18
+        },
+        {
+          "sprite": 1468,
+          "x": 63,
+          "y": 84
+        },
+        {
+          "sprite": 1473,
+          "x": 51,
+          "y": 81
+        },
+        {
+          "sprite": 1474,
+          "x": 99,
+          "y": 71
+        },
+        {
+          "sprite": 1471,
+          "x": 59,
+          "y": 90
+        },
+        {
+          "sprite": 1513,
+          "x": 48,
+          "y": 87
+        },
+        {
+          "sprite": 1454,
+          "x": 73,
+          "y": 91
+        },
+        {
+          "sprite": 1488,
+          "x": 29,
+          "y": 71
+        },
+        {
+          "sprite": 1488,
+          "x": 77,
+          "y": 92
+        },
+        {
+          "sprite": 1482,
+          "x": 81,
+          "y": 9
+        },
+        {
+          "sprite": 1482,
+          "x": 93,
+          "y": 15
+        },
+        {
+          "sprite": 1482,
+          "x": 18,
+          "y": 50
+        },
+        {
+          "sprite": 1521,
+          "x": 88,
+          "y": 94
+        },
+        {
+          "sprite": 1511,
+          "x": 30,
+          "y": 12
+        },
+        {
+          "sprite": 1467,
+          "x": 97,
+          "y": 3
+        },
+        {
+          "sprite": 1488,
+          "x": 35,
+          "y": 99
+        },
+        {
+          "sprite": 1511,
+          "x": 119,
+          "y": 25
+        },
+        {
+          "sprite": 1487,
+          "x": 21,
+          "y": 89
+        },
+        {
+          "sprite": 1534,
+          "x": 123,
+          "y": 78
+        },
+        {
+          "sprite": 1501,
+          "x": 14,
+          "y": 93
+        },
+        {
+          "sprite": 1534,
+          "x": 9,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "code": "CJR",
+      "destination": "Sinclair Mansion",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2705,
+      "worldY": 3576,
+      "insetCell": 34,
+      "insetIcons": [
+        {
+          "sprite": 1482,
+          "x": 72,
+          "y": 55
+        },
+        {
+          "sprite": 1518,
+          "x": 83,
+          "y": 34
+        },
+        {
+          "sprite": 1509,
+          "x": 91,
+          "y": 46
+        },
+        {
+          "sprite": 1487,
+          "x": 94,
+          "y": 45
+        },
+        {
+          "sprite": 1488,
+          "x": 95,
+          "y": 43
+        },
+        {
+          "sprite": 1690,
+          "x": 99,
+          "y": 65
+        },
+        {
+          "sprite": 1454,
+          "x": 102,
+          "y": 63
+        },
+        {
+          "sprite": 1454,
+          "x": 103,
+          "y": 71
+        },
+        {
+          "sprite": 1487,
+          "x": 108,
+          "y": 62
+        },
+        {
+          "sprite": 1474,
+          "x": 76,
+          "y": 94
+        }
+      ]
+    },
+    {
+      "code": "CKP",
+      "destination": "Cosmic entity\u0027s plane",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 2075,
+      "worldY": 4848,
+      "insetCell": 35,
+      "insetIcons": [
+        {
+          "sprite": 1454,
+          "x": 68,
+          "y": 9
+        },
+        {
+          "sprite": 1460,
+          "x": 76,
+          "y": 6
+        },
+        {
+          "sprite": 1454,
+          "x": 72,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "code": "CKQ",
+      "destination": "Aldarin",
+      "region": "Varlamore",
+      "onSurface": true,
+      "worldX": 1359,
+      "worldY": 2941,
+      "insetCell": 36,
+      "insetIcons": [
+        {
+          "sprite": 1501,
+          "x": 75,
+          "y": 52
+        },
+        {
+          "sprite": 1488,
+          "x": 60,
+          "y": 42
+        },
+        {
+          "sprite": 1487,
+          "x": 81,
+          "y": 51
+        },
+        {
+          "sprite": 1508,
+          "x": 65,
+          "y": 66
+        },
+        {
+          "sprite": 1507,
+          "x": 53,
+          "y": 40
+        },
+        {
+          "sprite": 1511,
+          "x": 50,
+          "y": 56
+        },
+        {
+          "sprite": 1685,
+          "x": 68,
+          "y": 68
+        },
+        {
+          "sprite": 1534,
+          "x": 64,
+          "y": 70
+        },
+        {
+          "sprite": 1479,
+          "x": 85,
+          "y": 63
+        },
+        {
+          "sprite": 1488,
+          "x": 82,
+          "y": 30
+        },
+        {
+          "sprite": 1487,
+          "x": 61,
+          "y": 78
+        },
+        {
+          "sprite": 1518,
+          "x": 48,
+          "y": 74
+        },
+        {
+          "sprite": 1487,
+          "x": 96,
+          "y": 64
+        },
+        {
+          "sprite": 1487,
+          "x": 86,
+          "y": 22
+        },
+        {
+          "sprite": 1486,
+          "x": 96,
+          "y": 70
+        },
+        {
+          "sprite": 1511,
+          "x": 65,
+          "y": 13
+        },
+        {
+          "sprite": 1534,
+          "x": 96,
+          "y": 74
+        },
+        {
+          "sprite": 1512,
+          "x": 105,
+          "y": 66
+        },
+        {
+          "sprite": 1453,
+          "x": 108,
+          "y": 63
+        },
+        {
+          "sprite": 1488,
+          "x": 110,
+          "y": 52
+        },
+        {
+          "sprite": 1474,
+          "x": 80,
+          "y": 5
+        },
+        {
+          "sprite": 1488,
+          "x": 101,
+          "y": 17
+        },
+        {
+          "sprite": 1482,
+          "x": 31,
+          "y": 16
+        },
+        {
+          "sprite": 1487,
+          "x": 116,
+          "y": 44
+        },
+        {
+          "sprite": 1474,
+          "x": 21,
+          "y": 27
+        },
+        {
+          "sprite": 1504,
+          "x": 96,
+          "y": 91
+        },
+        {
+          "sprite": 1454,
+          "x": 120,
+          "y": 53
+        },
+        {
+          "sprite": 1491,
+          "x": 105,
+          "y": 97
+        },
+        {
+          "sprite": 1448,
+          "x": 120,
+          "y": 17
+        },
+        {
+          "sprite": 1505,
+          "x": 129,
+          "y": 27
+        },
+        {
+          "sprite": 1484,
+          "x": 126,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "code": "CKR",
+      "destination": "South of Tai Bwo Wannai Village",
+      "region": "Karamja",
+      "onSurface": true,
+      "worldX": 2801,
+      "worldY": 3003,
+      "insetCell": 37,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 72,
+          "y": 38
+        },
+        {
+          "sprite": 1511,
+          "x": 52,
+          "y": 51
+        },
+        {
+          "sprite": 1456,
+          "x": 88,
+          "y": 51
+        },
+        {
+          "sprite": 1460,
+          "x": 89,
+          "y": 51
+        },
+        {
+          "sprite": 1454,
+          "x": 100,
+          "y": 67
+        },
+        {
+          "sprite": 1448,
+          "x": 90,
+          "y": 94
+        },
+        {
+          "sprite": 1504,
+          "x": 99,
+          "y": 94
+        },
+        {
+          "sprite": 1456,
+          "x": 114,
+          "y": 19
+        },
+        {
+          "sprite": 1504,
+          "x": 29,
+          "y": 95
+        },
+        {
+          "sprite": 1474,
+          "x": 120,
+          "y": 75
+        },
+        {
+          "sprite": 1474,
+          "x": 124,
+          "y": 79
+        },
+        {
+          "sprite": 7282,
+          "x": 23,
+          "y": 99
+        },
+        {
+          "sprite": 1457,
+          "x": 122,
+          "y": 85
+        },
+        {
+          "sprite": 1518,
+          "x": 129,
+          "y": 78
+        },
+        {
+          "sprite": 1453,
+          "x": 117,
+          "y": 98
+        }
+      ]
+    },
+    {
+      "code": "CKS",
+      "destination": "Canifis",
+      "region": "Morytania",
+      "onSurface": true,
+      "worldX": 3447,
+      "worldY": 3470,
+      "insetCell": 38,
+      "insetIcons": [
+        {
+          "sprite": 1501,
+          "x": 69,
+          "y": 48
+        },
+        {
+          "sprite": 1522,
+          "x": 84,
+          "y": 41
+        },
+        {
+          "sprite": 1486,
+          "x": 54,
+          "y": 32
+        },
+        {
+          "sprite": 1518,
+          "x": 42,
+          "y": 43
+        },
+        {
+          "sprite": 1534,
+          "x": 41,
+          "y": 35
+        },
+        {
+          "sprite": 1467,
+          "x": 35,
+          "y": 30
+        },
+        {
+          "sprite": 1448,
+          "x": 95,
+          "y": 24
+        },
+        {
+          "sprite": 1504,
+          "x": 88,
+          "y": 86
+        },
+        {
+          "sprite": 1454,
+          "x": 107,
+          "y": 34
+        },
+        {
+          "sprite": 1474,
+          "x": 105,
+          "y": 71
+        },
+        {
+          "sprite": 1454,
+          "x": 25,
+          "y": 27
+        },
+        {
+          "sprite": 1534,
+          "x": 114,
+          "y": 55
+        },
+        {
+          "sprite": 1481,
+          "x": 107,
+          "y": 23
+        },
+        {
+          "sprite": 1474,
+          "x": 100,
+          "y": 86
+        },
+        {
+          "sprite": 1479,
+          "x": 116,
+          "y": 50
+        },
+        {
+          "sprite": 1534,
+          "x": 24,
+          "y": 13
+        },
+        {
+          "sprite": 1454,
+          "x": 122,
+          "y": 42
+        },
+        {
+          "sprite": 1497,
+          "x": 126,
+          "y": 29
+        },
+        {
+          "sprite": 1460,
+          "x": 128,
+          "y": 71
+        },
+        {
+          "sprite": 1499,
+          "x": 130,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "code": "CLP",
+      "destination": "(Island) South of Draynor Village",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 3082,
+      "worldY": 3206,
+      "insetCell": 39,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 83,
+          "y": 61
+        },
+        {
+          "sprite": 1474,
+          "x": 69,
+          "y": 27
+        },
+        {
+          "sprite": 1522,
+          "x": 80,
+          "y": 28
+        },
+        {
+          "sprite": 7285,
+          "x": 35,
+          "y": 63
+        },
+        {
+          "sprite": 4941,
+          "x": 81,
+          "y": 18
+        },
+        {
+          "sprite": 1504,
+          "x": 30,
+          "y": 50
+        },
+        {
+          "sprite": 1453,
+          "x": 75,
+          "y": 13
+        },
+        {
+          "sprite": 1684,
+          "x": 65,
+          "y": 9
+        },
+        {
+          "sprite": 1512,
+          "x": 80,
+          "y": 11
+        },
+        {
+          "sprite": 1504,
+          "x": 24,
+          "y": 54
+        },
+        {
+          "sprite": 1504,
+          "x": 31,
+          "y": 22
+        },
+        {
+          "sprite": 1454,
+          "x": 70,
+          "y": 4
+        },
+        {
+          "sprite": 1506,
+          "x": 61,
+          "y": 3
+        },
+        {
+          "sprite": 1685,
+          "x": 67,
+          "y": 2
+        },
+        {
+          "sprite": 1534,
+          "x": 88,
+          "y": 93
+        },
+        {
+          "sprite": 1686,
+          "x": 74,
+          "y": 1
+        },
+        {
+          "sprite": 1487,
+          "x": 100,
+          "y": 87
+        },
+        {
+          "sprite": 1534,
+          "x": 102,
+          "y": 11
+        },
+        {
+          "sprite": 1504,
+          "x": 14,
+          "y": 37
+        },
+        {
+          "sprite": 1454,
+          "x": 36,
+          "y": 3
+        },
+        {
+          "sprite": 1534,
+          "x": 2,
+          "y": 23
+        },
+        {
+          "sprite": 1488,
+          "x": 3,
+          "y": 17
+        },
+        {
+          "sprite": 1486,
+          "x": 0,
+          "y": 23
+        },
+        {
+          "sprite": 1451,
+          "x": 10,
+          "y": 5
+        },
+        {
+          "sprite": 1512,
+          "x": 0,
+          "y": 19
+        },
+        {
+          "sprite": 1482,
+          "x": 131,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "code": "CLR",
+      "destination": "(Island) Ape Atoll",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2740,
+      "worldY": 2738,
+      "insetCell": 40,
+      "insetIcons": [
+        {
+          "sprite": 1497,
+          "x": 79,
+          "y": 45
+        },
+        {
+          "sprite": 1482,
+          "x": 52,
+          "y": 52
+        },
+        {
+          "sprite": 1474,
+          "x": 101,
+          "y": 47
+        },
+        {
+          "sprite": 1482,
+          "x": 43,
+          "y": 77
+        },
+        {
+          "sprite": 1450,
+          "x": 83,
+          "y": 18
+        },
+        {
+          "sprite": 1448,
+          "x": 79,
+          "y": 12
+        },
+        {
+          "sprite": 1460,
+          "x": 89,
+          "y": 84
+        },
+        {
+          "sprite": 1464,
+          "x": 85,
+          "y": 13
+        },
+        {
+          "sprite": 1482,
+          "x": 101,
+          "y": 90
+        },
+        {
+          "sprite": 1474,
+          "x": 25,
+          "y": 84
+        },
+        {
+          "sprite": 1465,
+          "x": 100,
+          "y": 9
+        },
+        {
+          "sprite": 1453,
+          "x": 106,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "code": "CLS",
+      "destination": "(Island) Hazelmere\u0027s home",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2682,
+      "worldY": 3081,
+      "insetCell": 41,
+      "insetIcons": [
+        {
+          "sprite": 4947,
+          "x": 83,
+          "y": 83
+        }
+      ]
+    },
+    {
+      "code": "DIP",
+      "destination": "(Sire Boss) Abyssal Nexus",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 3037,
+      "worldY": 4763,
+      "insetCell": 42,
+      "insetIcons": [
+        {
+          "sprite": 1504,
+          "x": 61,
+          "y": 19
+        }
+      ]
+    },
+    {
+      "code": "DIQ",
+      "destination": "Player-owned house",
+      "onSurface": false
+    },
+    {
+      "code": "DIR",
+      "destination": "Gorak\u0027s Plane",
+      "region": "Other Realms",
+      "onSurface": false,
+      "worldX": 3038,
+      "worldY": 5348,
+      "insetCell": 43,
+      "insetIcons": []
+    },
+    {
+      "code": "DIS",
+      "destination": "Wizards\u0027 Tower",
+      "region": "Misthalin",
+      "onSurface": true,
+      "worldX": 3108,
+      "worldY": 3149,
+      "insetCell": 44,
+      "insetIcons": [
+        {
+          "sprite": 1534,
+          "x": 62,
+          "y": 36
+        },
+        {
+          "sprite": 1487,
+          "x": 74,
+          "y": 30
+        },
+        {
+          "sprite": 1460,
+          "x": 69,
+          "y": 72
+        },
+        {
+          "sprite": 1453,
+          "x": 80,
+          "y": 73
+        },
+        {
+          "sprite": 1512,
+          "x": 76,
+          "y": 78
+        },
+        {
+          "sprite": 1454,
+          "x": 43,
+          "y": 75
+        },
+        {
+          "sprite": 1460,
+          "x": 46,
+          "y": 79
+        },
+        {
+          "sprite": 1456,
+          "x": 107,
+          "y": 49
+        },
+        {
+          "sprite": 1487,
+          "x": 48,
+          "y": 88
+        },
+        {
+          "sprite": 1467,
+          "x": 79,
+          "y": 91
+        },
+        {
+          "sprite": 1474,
+          "x": 57,
+          "y": 4
+        },
+        {
+          "sprite": 1534,
+          "x": 127,
+          "y": 26
+        },
+        {
+          "sprite": 1472,
+          "x": 128,
+          "y": 22
+        },
+        {
+          "sprite": 7285,
+          "x": 9,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "code": "DJP",
+      "destination": "Tower of Life",
+      "region": "Kandarin",
+      "onSurface": true,
+      "worldX": 2658,
+      "worldY": 3230,
+      "insetCell": 45,
+      "insetIcons": [
+        {
+          "sprite": 1460,
+          "x": 58,
+          "y": 66
+        },
+        {
+          "sprite": 1454,
+          "x": 49,
+          "y": 61
+        },
+        {
+          "sprite": 7285,
+          "x": 80,
+          "y": 14
+        },
+        {
+          "sprite": 1501,
+          "x": 24,
+          "y": 55
+        },
+        {
+          "sprite": 1487,
+          "x": 66,
+          "y": 7
+        },
+        {
+          "sprite": 1504,
+          "x": 44,
+          "y": 11
+        },
+        {
+          "sprite": 1504,
+          "x": 108,
+          "y": 30
+        },
+        {
+          "sprite": 1512,
+          "x": 55,
+          "y": 0
+        },
+        {
+          "sprite": 7281,
+          "x": 85,
+          "y": 2
+        },
+        {
+          "sprite": 1487,
+          "x": 21,
+          "y": 24
+        },
+        {
+          "sprite": 1467,
+          "x": 16,
+          "y": 71
+        },
+        {
+          "sprite": 1454,
+          "x": 14,
+          "y": 68
+        },
+        {
+          "sprite": 1467,
+          "x": 13,
+          "y": 71
+        },
+        {
+          "sprite": 1487,
+          "x": 19,
+          "y": 84
+        },
+        {
+          "sprite": 1456,
+          "x": 8,
+          "y": 47
+        },
+        {
+          "sprite": 1454,
+          "x": 14,
+          "y": 15
+        },
+        {
+          "sprite": 1487,
+          "x": 17,
+          "y": 92
+        },
+        {
+          "sprite": 1454,
+          "x": 2,
+          "y": 14
+        },
+        {
+          "sprite": 1487,
+          "x": 130,
+          "y": 8
+        },
+        {
+          "sprite": 1487,
+          "x": 0,
+          "y": 91
+        }
+      ]
+    },
+    {
+      "code": "DJR",
+      "destination": "Chasm of Fire",
+      "region": "Great Kourend",
+      "onSurface": true,
+      "worldX": 1455,
+      "worldY": 3658,
+      "insetCell": 46,
+      "insetIcons": [
+        {
+          "sprite": 1488,
+          "x": 61,
+          "y": 65
+        },
+        {
+          "sprite": 1487,
+          "x": 88,
+          "y": 46
+        },
+        {
+          "sprite": 1534,
+          "x": 44,
+          "y": 37
+        },
+        {
+          "sprite": 1512,
+          "x": 94,
+          "y": 62
+        },
+        {
+          "sprite": 1453,
+          "x": 97,
+          "y": 62
+        },
+        {
+          "sprite": 1487,
+          "x": 40,
+          "y": 93
+        },
+        {
+          "sprite": 1486,
+          "x": 115,
+          "y": 72
+        },
+        {
+          "sprite": 1504,
+          "x": 17,
+          "y": 95
+        },
+        {
+          "sprite": 1487,
+          "x": 123,
+          "y": 86
+        }
+      ]
+    },
+    {
+      "code": "DKP",
+      "destination": "South of Musa Point",
+      "region": "Karamja",
+      "onSurface": true,
+      "worldX": 2900,
+      "worldY": 3111,
+      "insetCell": 47,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 65,
+          "y": 41
+        },
+        {
+          "sprite": 1474,
+          "x": 78,
+          "y": 41
+        },
+        {
+          "sprite": 1474,
+          "x": 58,
+          "y": 26
+        },
+        {
+          "sprite": 1518,
+          "x": 41,
+          "y": 32
+        },
+        {
+          "sprite": 1487,
+          "x": 82,
+          "y": 18
+        },
+        {
+          "sprite": 1448,
+          "x": 71,
+          "y": 12
+        },
+        {
+          "sprite": 1518,
+          "x": 40,
+          "y": 17
+        },
+        {
+          "sprite": 1479,
+          "x": 92,
+          "y": 17
+        },
+        {
+          "sprite": 1512,
+          "x": 67,
+          "y": 8
+        },
+        {
+          "sprite": 7281,
+          "x": 107,
+          "y": 16
+        },
+        {
+          "sprite": 7284,
+          "x": 110,
+          "y": 12
+        },
+        {
+          "sprite": 1504,
+          "x": 121,
+          "y": 15
+        },
+        {
+          "sprite": 7285,
+          "x": 127,
+          "y": 13
+        }
+      ]
+    },
+    {
+      "code": "DKR",
+      "destination": "Edgeville, Grand Exchange",
+      "region": "Misthalin",
+      "onSurface": true,
+      "worldX": 3129,
+      "worldY": 3496,
+      "insetCell": 48,
+      "insetIcons": [
+        {
+          "sprite": 1504,
+          "x": 68,
+          "y": 36
+        },
+        {
+          "sprite": 1504,
+          "x": 77,
+          "y": 41
+        },
+        {
+          "sprite": 1457,
+          "x": 46,
+          "y": 46
+        },
+        {
+          "sprite": 1518,
+          "x": 77,
+          "y": 30
+        },
+        {
+          "sprite": 1522,
+          "x": 58,
+          "y": 28
+        },
+        {
+          "sprite": 1486,
+          "x": 80,
+          "y": 72
+        },
+        {
+          "sprite": 1499,
+          "x": 46,
+          "y": 29
+        },
+        {
+          "sprite": 1524,
+          "x": 33,
+          "y": 39
+        },
+        {
+          "sprite": 1453,
+          "x": 31,
+          "y": 51
+        },
+        {
+          "sprite": 1524,
+          "x": 100,
+          "y": 38
+        },
+        {
+          "sprite": 2216,
+          "x": 34,
+          "y": 68
+        },
+        {
+          "sprite": 1512,
+          "x": 29,
+          "y": 57
+        },
+        {
+          "sprite": 1534,
+          "x": 34,
+          "y": 76
+        },
+        {
+          "sprite": 1488,
+          "x": 84,
+          "y": 91
+        },
+        {
+          "sprite": 1534,
+          "x": 53,
+          "y": 93
+        },
+        {
+          "sprite": 1504,
+          "x": 26,
+          "y": 71
+        },
+        {
+          "sprite": 1482,
+          "x": 23,
+          "y": 64
+        },
+        {
+          "sprite": 1487,
+          "x": 21,
+          "y": 43
+        },
+        {
+          "sprite": 1491,
+          "x": 79,
+          "y": 94
+        },
+        {
+          "sprite": 1487,
+          "x": 75,
+          "y": 96
+        },
+        {
+          "sprite": 1482,
+          "x": 23,
+          "y": 76
+        },
+        {
+          "sprite": 1486,
+          "x": 20,
+          "y": 71
+        },
+        {
+          "sprite": 1485,
+          "x": 79,
+          "y": 99
+        },
+        {
+          "sprite": 1448,
+          "x": 17,
+          "y": 36
+        },
+        {
+          "sprite": 1453,
+          "x": 85,
+          "y": 98
+        },
+        {
+          "sprite": 1488,
+          "x": 14,
+          "y": 49
+        },
+        {
+          "sprite": 1487,
+          "x": 14,
+          "y": 56
+        },
+        {
+          "sprite": 1693,
+          "x": 107,
+          "y": 84
+        },
+        {
+          "sprite": 2961,
+          "x": 119,
+          "y": 72
+        },
+        {
+          "sprite": 1504,
+          "x": 122,
+          "y": 35
+        },
+        {
+          "sprite": 1487,
+          "x": 127,
+          "y": 75
+        }
+      ]
+    },
+    {
+      "code": "DKS",
+      "destination": "Polar Hunter area",
+      "region": "Fremennik Province",
+      "onSurface": true,
+      "worldX": 2744,
+      "worldY": 3719,
+      "insetCell": 49,
+      "insetIcons": [
+        {
+          "sprite": 1534,
+          "x": 53,
+          "y": 55
+        },
+        {
+          "sprite": 1454,
+          "x": 46,
+          "y": 39
+        },
+        {
+          "sprite": 1456,
+          "x": 47,
+          "y": 75
+        },
+        {
+          "sprite": 1504,
+          "x": 30,
+          "y": 33
+        },
+        {
+          "sprite": 1534,
+          "x": 118,
+          "y": 50
+        },
+        {
+          "sprite": 1518,
+          "x": 11,
+          "y": 71
+        },
+        {
+          "sprite": 1456,
+          "x": 5,
+          "y": 64
+        },
+        {
+          "sprite": 1690,
+          "x": 1,
+          "y": 98
+        }
+      ]
+    },
+    {
+      "code": "DLP",
+      "destination": "Grimstone Dungeon",
+      "region": "Islands",
+      "onSurface": false,
+      "worldX": 2926,
+      "worldY": 10455,
+      "insetCell": 50,
+      "insetIcons": [
+        {
+          "sprite": 1457,
+          "x": 69,
+          "y": 43
+        },
+        {
+          "sprite": 1518,
+          "x": 42,
+          "y": 50
+        }
+      ]
+    },
+    {
+      "code": "DLQ",
+      "destination": "North of Nardah",
+      "region": "Kharidian Desert",
+      "onSurface": true,
+      "worldX": 3423,
+      "worldY": 3016,
+      "insetCell": 51,
+      "insetIcons": [
+        {
+          "sprite": 1456,
+          "x": 107,
+          "y": 27
+        },
+        {
+          "sprite": 1691,
+          "x": 7,
+          "y": 64
+        },
+        {
+          "sprite": 1460,
+          "x": 129,
+          "y": 42
+        },
+        {
+          "sprite": 4942,
+          "x": 5,
+          "y": 72
+        },
+        {
+          "sprite": 1512,
+          "x": 11,
+          "y": 92
+        },
+        {
+          "sprite": 1448,
+          "x": 2,
+          "y": 78
+        },
+        {
+          "sprite": 1487,
+          "x": 10,
+          "y": 96
+        },
+        {
+          "sprite": 1487,
+          "x": 2,
+          "y": 94
+        }
+      ]
+    },
+    {
+      "code": "DLR",
+      "destination": "(Island) Poison Waste south of Isafdar",
+      "region": "Islands",
+      "onSurface": true,
+      "worldX": 2213,
+      "worldY": 3099,
+      "insetCell": 52,
+      "insetIcons": [
+        {
+          "sprite": 1474,
+          "x": 49,
+          "y": 81
+        },
+        {
+          "sprite": 1474,
+          "x": 37,
+          "y": 80
+        },
+        {
+          "sprite": 1482,
+          "x": 71,
+          "y": 7
+        },
+        {
+          "sprite": 1448,
+          "x": 48,
+          "y": 8
+        },
+        {
+          "sprite": 1457,
+          "x": 46,
+          "y": 2
+        },
+        {
+          "sprite": 1518,
+          "x": 10,
+          "y": 75
+        },
+        {
+          "sprite": 7282,
+          "x": 11,
+          "y": 22
+        },
+        {
+          "sprite": 1504,
+          "x": 1,
+          "y": 79
+        }
+      ]
+    },
+    {
+      "code": "DLS",
+      "destination": "Myreque hideout under The Hollows",
+      "region": "Dungeons",
+      "onSurface": false,
+      "worldX": 3447,
+      "worldY": 9824,
+      "insetCell": 53,
+      "insetIcons": [
+        {
+          "sprite": 1518,
+          "x": 119,
+          "y": 71
+        },
+        {
+          "sprite": 1454,
+          "x": 125,
+          "y": 34
+        },
+        {
+          "sprite": 1456,
+          "x": 3,
+          "y": 60
+        }
+      ]
+    }
+  ]
+}

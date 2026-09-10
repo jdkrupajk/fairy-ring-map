@@ -1,0 +1,9 @@
+[
+  { "spriteId": -19401, "fileName": "/FairyRingMap/gielinor.png" },
+  { "spriteId": -19402, "fileName": "/FairyRingMap/ring.png" },
+  { "spriteId": -19403, "fileName": "/FairyRingMap/ring-hover.png" },
+  { "spriteId": -19404, "fileName": "/FairyRingMap/ring-selected.png" },
+  { "spriteId": -19405, "fileName": "/FairyRingMap/ring-locked.png" },
+  { "spriteId": -19406, "fileName": "/FairyRingMap/ring-fave.png" },
+  { "spriteId": -19407, "fileName": "/FairyRingMap/inset-sheet.png" }
+]
