@@ -417,12 +417,30 @@ regions like anywhere else. 54 is 9 x 6 exactly, so the grid wastes no cells.
 
 **The cell size was set by the Plugin Hub, not by taste.** The hub counts a bundled image as
 `width * height * 4` bytes flat, whatever the PNG's own colour depth — so palette-quantising cannot
-move the number and only the dimensions can. The limit is not published, so it was bracketed by
-submitting: 1056 x 700 (2,956,800) rejected, 1008 x 510 (2,056,320) rejected, and the shipped map
-sprite at 633,984 accepted. 684 x 348 clears both 1,000,000 and 1 MiB with margin.
+move the number, and only the dimensions can.
 
-The cost is window area, not detail — magnification stays at 1 px/tile. 76 tiles still spans a whole
-town, which is what the close-up is for.
+The threshold is not published, so it was bracketed by submitting. Measured 2026-09-10 against
+`runelite/plugin-hub` PR 16339:
+
+| cell | sheet | bytes | result |
+|---|---|---|---|
+| 132 x 100 | 1056 x 700 | 2,956,800 | rejected |
+| 112 x 85 | 1008 x 510 | 2,056,320 | rejected |
+| 109 x 83 | 981 x 498 | 1,954,152 | rejected |
+| 95 x 73 | 855 x 438 | 1,497,960 | rejected |
+| 88 x 67 | 792 x 402 | 1,273,536 | rejected |
+| **76 x 58** | **684 x 348** | **952,128** | **accepted** |
+
+So the limit lies in **[952,128, 1,273,536)**. Note that 2,056,320 is itself under 2 MiB and still
+failed, so it is neither 2 MiB nor 2,000,000; **1 MiB (1,048,576) fits every observation**. The only
+untried size below the bracket is 80 x 60 at 1,036,800, which is 1.09x the accepted window — not
+worth a submission.
+
+The shipped world map (508 x 312, 633,984) passes and is the other half of the budget, so leave
+headroom if it is ever re-rendered larger.
+
+The cost is window area, not detail — magnification stays at 1 px/tile throughout. 76 tiles still
+spans a whole town, which is what the close-up is for.
 
 The arithmetic got *simpler*, which is the sign the sheet was the right shape:
 
