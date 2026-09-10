@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -108,6 +110,108 @@ public class FairyRingDefinitionsTest
 					projection.contains(ring.getWorldX(), ring.getWorldY()));
 			}
 		}
+	}
+
+	/**
+	 * No two markers land so close together that one of them cannot be clicked.
+	 * <p>
+	 * A marker is 11 px square, so centres closer than that overlap and the one drawn underneath
+	 * becomes hard to click. {@code AJS} (penguins) and {@code CIP} (Miscellania) are 13 tiles apart,
+	 * which at 0.1804 px per tile is 2.8 px — they were effectively one marker, and the hand nudges
+	 * in {@code generate-definitions.py} separate them to 8.5 px.
+	 * <p>
+	 * <b>This is the guard on those nudges.</b> The definitions file is generated, so a regeneration
+	 * that lost the {@code NUDGES} table would silently put the two markers back on top of each
+	 * other — nothing about the map would look wrong, one destination would just stop being
+	 * clickable.
+	 * <p>
+	 * The floor is 6 px rather than a marker's full width, because several pairs sit near 8 px for
+	 * reasons no offset can fix and the map is usable that way: {@code BIS}/{@code DJP} at 8.1 and
+	 * {@code AIR}/{@code DJP} at 8.5 have always been there. Separating {@code AJS}/{@code CIP} to a
+	 * clean 11 px needed an 8 px offset — about 44 tiles of lie — to fix one pair the rest of the map
+	 * does not treat as special. 6 px is the point where one marker genuinely disappears behind
+	 * another; anything above it is tight but real.
+	 */
+	@Test
+	public void everyMarkerPairIsClickablyApart()
+	{
+		MapProjection projection = MapProjection.of(definitions.getMap());
+		List<RingDefinition> surface = new ArrayList<>();
+		for (RingDefinition ring : definitions.getRings())
+		{
+			if (ring.isOnSurface())
+			{
+				surface.add(ring);
+			}
+		}
+
+		double worst = Double.MAX_VALUE;
+		String worstPair = "";
+		for (int i = 0; i < surface.size(); i++)
+		{
+			for (int j = i + 1; j < surface.size(); j++)
+			{
+				RingDefinition a = surface.get(i);
+				RingDefinition b = surface.get(j);
+				double dx = (projection.pixelX(a.getWorldX()) + a.getOffsetX())
+					- (projection.pixelX(b.getWorldX()) + b.getOffsetX());
+				double dy = (projection.pixelY(a.getWorldY()) + a.getOffsetY())
+					- (projection.pixelY(b.getWorldY()) + b.getOffsetY());
+				double apart = Math.sqrt(dx * dx + dy * dy);
+				if (apart < worst)
+				{
+					worst = apart;
+					worstPair = a.getCode() + "/" + b.getCode();
+				}
+			}
+		}
+
+		assertTrue("closest markers " + worstPair + " are " + Math.round(worst)
+			+ " px apart; a marker is 11 px and anything under 6 hides one entirely",
+			worst >= 6.0);
+	}
+
+	/**
+	 * Both halves of the Miscellania nudge are still being applied.
+	 * <p>
+	 * They move symmetrically and in the direction each destination genuinely lies — {@code AJS}
+	 * north-west, {@code CIP} south-east — so neither marker carries the whole error, and 2 px each
+	 * is enough to take the pair from 2.8 px to 8.5 px. Checked in both directions because losing
+	 * either half halves the separation.
+	 */
+	@Test
+	public void thePenguinsAndMiscellaniaAreBothNudgedApart()
+	{
+		MapProjection projection = MapProjection.of(definitions.getMap());
+		RingDefinition penguins = ringFor("AJS");
+		RingDefinition miscellania = ringFor("CIP");
+
+		assertTrue("AJS has lost its hand nudge; regenerate with the NUDGES table",
+			penguins.getOffsetX() != 0 || penguins.getOffsetY() != 0);
+		assertTrue("CIP has lost its hand nudge; regenerate with the NUDGES table",
+			miscellania.getOffsetX() != 0 || miscellania.getOffsetY() != 0);
+
+		double dx = (projection.pixelX(penguins.getWorldX()) + penguins.getOffsetX())
+			- (projection.pixelX(miscellania.getWorldX()) + miscellania.getOffsetX());
+		double dy = (projection.pixelY(penguins.getWorldY()) + penguins.getOffsetY())
+			- (projection.pixelY(miscellania.getWorldY()) + miscellania.getOffsetY());
+		double apart = Math.sqrt(dx * dx + dy * dy);
+
+		// 8 px: as far apart as the map's other tight pairs, which is the standard this was held to
+		// rather than a marker's full width. See everyMarkerPairIsClickablyApart.
+		assertTrue("AJS and CIP are only " + Math.round(apart) + " px apart", apart >= 8.0);
+	}
+
+	private RingDefinition ringFor(String code)
+	{
+		for (RingDefinition ring : definitions.getRings())
+		{
+			if (code.equals(ring.getCode()))
+			{
+				return ring;
+			}
+		}
+		throw new AssertionError(code + " missing");
 	}
 
 	/** The player-owned house is a working ring whose destination is per-player, so it has none. */

@@ -236,7 +236,9 @@
           "x": 65,
           "y": 33
         }
-      ]
+      ],
+      "offsetX": -2,
+      "offsetY": -2
     },
     {
       "code": "AKP",
@@ -390,7 +392,7 @@
     },
     {
       "code": "ALS",
-      "destination": "McGrubor\u0027s Wood",
+      "destination": "McGrubor's Wood",
       "region": "Kandarin",
       "onSurface": true,
       "worldX": 2644,
@@ -737,7 +739,7 @@
     },
     {
       "code": "BLQ",
-      "destination": "Yu\u0027biusk",
+      "destination": "Yu'biusk",
       "region": "Other Realms",
       "onSurface": false,
       "worldX": 3572,
@@ -747,7 +749,7 @@
     },
     {
       "code": "BLR",
-      "destination": "Legends\u0027 Guild",
+      "destination": "Legends' Guild",
       "region": "Kandarin",
       "onSurface": true,
       "worldX": 2740,
@@ -846,7 +848,9 @@
           "x": 74,
           "y": 16
         }
-      ]
+      ],
+      "offsetX": 2,
+      "offsetY": 2
     },
     {
       "code": "CIQ",
@@ -1034,7 +1038,7 @@
     },
     {
       "code": "CKP",
-      "destination": "Cosmic entity\u0027s plane",
+      "destination": "Cosmic entity's plane",
       "region": "Other Realms",
       "onSurface": false,
       "worldX": 2075,
@@ -1289,7 +1293,7 @@
     },
     {
       "code": "CLS",
-      "destination": "(Island) Hazelmere\u0027s home",
+      "destination": "(Island) Hazelmere's home",
       "region": "Kandarin",
       "onSurface": true,
       "worldX": 2682,
@@ -1314,7 +1318,7 @@
     },
     {
       "code": "DIR",
-      "destination": "Gorak\u0027s Plane",
+      "destination": "Gorak's Plane",
       "region": "Other Realms",
       "onSurface": false,
       "worldX": 3038,
@@ -1324,7 +1328,7 @@
     },
     {
       "code": "DIS",
-      "destination": "Wizards\u0027 Tower",
+      "destination": "Wizards' Tower",
       "region": "Misthalin",
       "onSurface": true,
       "worldX": 3108,

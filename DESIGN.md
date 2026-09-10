@@ -312,7 +312,7 @@ landed below the fold looking like a filter that had silently failed.
 
 Added 2026-09-07, fixing a marker that flashed white and reverted within half a second.
 
-The mouse-over listener used to call `setSpriteId(SPRITE_RING_HOVER)` directly. That stores the
+Hover used to be written straight onto the marker with `setSpriteId(SPRITE_RING_HOVER)`. That stores the
 fact *in the widget* — and `refreshAvailability()` repaints all 55 markers from scratch on every
 run of script 8080, which the game fires roughly twice a second while the log is open. The repaint
 was not wrong; it simply had no way to know.
@@ -334,30 +334,82 @@ you are pointing at, and you can have it"; showing it where a click will do noth
 the map cannot keep. The inset still opens, because where a ring you have not unlocked goes is the
 more interesting half of the question.
 
-### The travel log lights the map, read from the menu rather than from a listener
+### Hover comes from the menu, for markers and log rows alike
 
-Added 2026-09-07. Hovering a row in the log lights its marker and pops the inset — the inverse of
-what the map already did, so a code you already know can be found on the map.
+Added 2026-09-07 for the log rows; extended to the map's own markers 2026-09-10, after a close-up
+that intermittently refused to draw.
 
-The obvious implementation is `setOnMouseOverListener` on each of the 74 rows, and it is wrong
-twice over. **A widget holds one listener per event**, so installing ours would discard the one
-script 8080 already put there and the rows would lose the game's own hover colour; and 8080
-reinstalls its listeners on every rebuild, so the plugin would be in a standing race with the
-client over a single field.
+**Log rows could never have used listeners.** A widget holds one listener per event, so installing
+ours would discard the one script 8080 already put there and the rows would lose the game's own
+hover colour; and 8080 reinstalls its listeners on every rebuild, so the plugin would be in a
+standing race with the client over a single field.
 
-The client already computes the answer for its own purposes: what is under the cursor is what it
-built this frame's menu from. So the plugin reads `client.getMenu().getMenuEntries()` on
-`ClientTick`, which fires after that menu is built. Nothing is modified and no entry is added —
-this is observation, the same posture as `ScriptPostFired`. A right-click menu freezes the entries
-at the moment it opened, so the read is skipped while one is open rather than acting on an answer
-that has stopped describing the cursor.
+**The markers did use listeners, and that was wrong for a different reason.** `hoveredMarker` was a
+single field, but **the cursor can be inside several markers at once** — `AJS` and `CIP` are
+thirteen tiles apart and overlap at any scale this panel can hold. So:
 
-The row is matched by **component id**, which is available only because the 64 code rows and the
-ten favourite rows are static widgets and so carry ids of their own. The three-letter labels beside
-them are dynamic children of `CONTENTS` and all report its id — the same finding that broke the
-undo map — so they could never be told apart this way. Favourite rows are resolved through
-`favouriteSlots` instead of a table, because which of the ten slots holds which destination is
-whatever the server last sent.
+```
+enter(CIP)  -> hoveredMarker = CIP
+enter(AJS)  -> hoveredMarker = AJS      cursor is inside both
+leave(AJS)  -> matches, cleared to null
+```
+
+The hover went blank while the cursor was still inside `CIP`, and no fresh `enter` was coming
+because the client already considered the cursor inside it. The close-up vanished until the cursor
+left and came back. The same fault also let the plugin light one marker while the game's tooltip
+named the other, which is what made it visible at all — reported with a screenshot rather than
+found by reasoning.
+
+**Tracking a *set* of hovered markers would fix the disappearance and not the disagreement.** The
+plugin would still be computing its own answer to a question the client had already answered. The
+client resolves overlap for its own purposes every frame, and that resolution *is* the tooltip. So
+the listeners were deleted and both sources now read the same place:
+
+> The client already computes the answer. What is under the cursor is what it built this frame's
+> menu from. **One source, and it agrees with the tooltip by construction.**
+
+`client.getMenu().getMenuEntries()` is read on `ClientTick`, which fires after that menu is built.
+Nothing is modified and no entry is added — observation, the same posture as `ScriptPostFired`. A
+right-click menu freezes the entries at the moment it opened, so the read is skipped while one is
+open rather than acting on an answer that has stopped describing the cursor.
+
+**The last matching entry wins, not the first.** RuneLite's menu array is ordered with the
+left-click default at the end, so where two markers overlap this is the one the tooltip names and
+the one a click would take.
+
+The two are matched by different means, and the difference is forced rather than chosen:
+
+| | matched by | why not the other way |
+|---|---|---|
+| Log row | component id | it is a static widget the client rebuilds under us, so identity goes stale |
+| Map marker | **widget identity** | it is a dynamic child and reports its *parent's* id, the same finding that broke the undo map |
+
+`MenuEntry.getWidget()` returns the very object `createIcon` made, and `Widget` does not override
+`equals`, so `==` is the whole comparison. Favourite rows are resolved through `favouriteSlots`
+rather than a table, because which of the ten slots holds which destination is whatever the server
+last sent.
+
+### Two destinations too close to click apart
+
+`AJS` (penguins) sits thirteen tiles west and twelve north of `CIP` (Miscellania) — 2.8 px at
+0.1804 px/tile, against an 11 px marker. They were effectively one marker with one of them
+unreachable, and no choice of map scale fixes it; widening the world box only makes it worse.
+
+Both are nudged 2 px, symmetrically, **in the direction each destination genuinely lies** — `AJS`
+north-west, `CIP` south-east. That exaggerates a true relationship rather than inventing a false
+one, and neither marker carries the whole error. Separation goes to 8.5 px.
+
+**8.5 px is deliberately modest rather than clean.** The markers still overlap by about 2 px, but
+each keeps a clickable region, and that is the separation `BIS`/`DJP` (8.1) and `AIR`/`DJP` (8.5)
+have always lived with. Pulling this one pair to a full 11 px took an 8 px offset — about 44 tiles
+of lie — to fix a pair the rest of the map does not treat as special. Tried in game at 13.5 px and
+rejected as too far.
+
+The nudges live in `NUDGES` in `generate-definitions.py`, **not** in the JSON, because the JSON is
+generated and a hand-edit would vanish on the next regeneration with no symptom except a
+destination quietly becoming unclickable again. `everyMarkerPairIsClickablyApart` and
+`thePenguinsAndMiscellaniaAreBothNudgedApart` are the guards. The close-up is unaffected: its cell
+is rendered from the real world coordinates, so the pin moves and the picture does not.
 
 ## While a search is in use, the search owns the list
 

@@ -410,9 +410,6 @@ public class FairyRingMap
 	 * wins when both are somehow set, because the cursor cannot be in two places and our own
 	 * listener is the one with an explicit end.
 	 */
-	private RingDefinition hoveredMarker;
-	private RingDefinition hoveredRow;
-	/** The resolved hover, and the value every marker is currently painted against. */
 	private RingDefinition hovered;
 
 	private boolean mapShown;
@@ -1212,8 +1209,9 @@ public class FairyRingMap
 		// nothing but this tooltip to tell them apart, and the code is what the dials are set to.
 		widget.setName(hoverName(ring, true));
 		widget.setHasListener(true);
-		widget.setOnMouseOverListener((JavaScriptCallback) e -> onHover(ring, true));
-		widget.setOnMouseLeaveListener((JavaScriptCallback) e -> onHover(ring, false));
+		// Deliberately no mouse-over or mouse-leave listener. Hover is read from the menu instead,
+		// in onClientTick, because a per-widget listener cannot answer the question once markers
+		// overlap - and at this scale several of them always do.
 		widget.setOnOpListener((JavaScriptCallback) e -> select(ring));
 		widget.revalidate();
 		return widget;
@@ -1582,35 +1580,16 @@ public class FairyRingMap
 
 	// ------------------------------------------------------------------ interaction
 
-	/** The map's own markers, through the listeners installed in {@link #createIcon}. */
-	private void onHover(RingDefinition ring, boolean entering)
-	{
-		// A leave event only clears the hover if it is still about the marker that set it. Markers
-		// overlap by design at this scale, and the client is under no obligation to deliver the
-		// leave for the old one before the enter for the new one; taking the leave at face value
-		// would blank a hover that had just been set.
-		if (entering)
-		{
-			hoveredMarker = ring;
-		}
-		else if (hoveredMarker == ring)
-		{
-			hoveredMarker = null;
-		}
-		applyHover();
-	}
-
 	/**
-	 * Resolve the two hover sources into one and, if the answer changed, repaint against it.
+	 * Repaint against the hover, if it changed.
 	 * <p>
 	 * Repainting all 55 markers rather than the two that changed is deliberate: it is 55 integer
 	 * writes, it happens only on a transition, and it means there is exactly one code path that
 	 * decides what a marker looks like. The alternative — patching the old and new markers — is the
-	 * same class of bug this is fixing, a second place that knows how a marker should be drawn.
+	 * same class of bug this exists to avoid, a second place that knows how a marker should be drawn.
 	 */
-	private void applyHover()
+	private void setHovered(RingDefinition now)
 	{
-		RingDefinition now = hoveredMarker != null ? hoveredMarker : hoveredRow;
 		if (now == hovered)
 		{
 			return;
@@ -1623,36 +1602,45 @@ public class FairyRingMap
 	}
 
 	/**
-	 * The other direction: light up the marker for whichever travel log row the cursor is over.
+	 * What the cursor is on, read from the menu — a marker on the map, or a row in the travel log.
 	 *
-	 * <h3>Why this reads the menu instead of installing a listener</h3>
+	 * <h3>Why the menu is the only source, for both</h3>
 	 *
-	 * The obvious implementation is {@code setOnMouseOverListener} on each of the 74 rows. It is
-	 * also wrong twice over. A widget holds <b>one</b> listener per event, so installing ours would
-	 * discard the one script 8080 already put there — the rows' own hover colour would stop working
-	 * — and the script reinstalls its listeners on every rebuild, so the plugin would be in a
-	 * standing race with the client over a single field.
+	 * The travel log's rows could never use listeners: a widget holds <b>one</b> listener per event,
+	 * so installing ours would discard the one script 8080 already put there, and the script
+	 * reinstalls its own on every rebuild — a standing race over a single field.
 	 * <p>
-	 * The client already computes the answer for its own purposes: what is under the cursor is what
-	 * it built this frame's menu from. Reading it is free, cannot collide with anything, and is
-	 * pure observation — the menu is not modified, and no entry is added. {@code ClientTick} fires
-	 * after that menu is built, which is why menu work in RuneLite conventionally happens there.
+	 * The map's markers <em>did</em> use listeners, and that was wrong for a different reason found
+	 * in game 2026-09-10. <b>The cursor can be inside several markers at once</b>, and it routinely
+	 * is: {@code CIP} and {@code AJS} are eighteen tiles apart and overlap at any scale the panel can
+	 * hold. A single remembered marker cannot describe that, so the sequence
+	 * {@code enter(CIP), enter(AJS), leave(AJS)} cleared the hover entirely while the cursor was
+	 * still inside {@code CIP} — and no fresh {@code enter} was coming, because the client already
+	 * considered the cursor inside it. The close-up simply vanished until the cursor left and
+	 * returned. The same fault also let the plugin light one marker while the game's tooltip named
+	 * the other, which is what made it visible.
 	 * <p>
-	 * The row is matched by <b>component id</b>, which works only because the 64 code rows and the
-	 * ten favourite rows are static widgets and so carry ids of their own. The three-letter labels
-	 * beside them are dynamic children and all report {@code CONTENTS}' id, so they could never be
-	 * told apart this way — the same finding that broke the undo map two sessions ago.
+	 * Tracking a set of hovered markers would fix the disappearance and not the disagreement. The
+	 * client already resolves overlap for its own purposes — that is exactly what it built this
+	 * frame's menu from, and what the tooltip shows. So the plugin reads that answer instead of
+	 * computing a second one. <b>One source, and it agrees with the tooltip by construction.</b>
+	 * <p>
+	 * This is pure observation: the menu is not modified and no entry is added. {@code ClientTick}
+	 * fires after the menu is built, which is why menu work in RuneLite conventionally happens there.
+	 * <p>
+	 * A log row is matched by <b>component id</b>, which works only because the 64 code rows and the
+	 * ten favourite rows are static widgets and so carry ids of their own. A <b>marker</b> cannot be:
+	 * it is a dynamic child and reports its parent's id, the same finding that broke the undo map two
+	 * sessions ago. It is matched on <b>widget identity</b> instead — {@code MenuEntry.getWidget()}
+	 * returns the very object this class created, and {@code Widget} does not override
+	 * {@code equals}, so {@code ==} is the whole comparison.
 	 */
 	@Subscribe
 	public void onClientTick(ClientTick event)
 	{
 		if (container == null || !mapShown || icons.isEmpty())
 		{
-			if (hoveredRow != null)
-			{
-				hoveredRow = null;
-				applyHover();
-			}
+			setHovered(null);
 			return;
 		}
 
@@ -1663,6 +1651,9 @@ public class FairyRingMap
 			return;
 		}
 
+		// The LAST matching entry, not the first. RuneLite's menu array is ordered with the
+		// left-click default at the end, so where two markers overlap this is the one the game's
+		// own tooltip names and the one a click would take.
 		RingDefinition found = null;
 		for (MenuEntry entry : client.getMenu().getMenuEntries())
 		{
@@ -1670,19 +1661,21 @@ public class FairyRingMap
 			if (ring != null)
 			{
 				found = ring;
-				break;
 			}
 		}
 
-		if (found != hoveredRow)
-		{
-			hoveredRow = found;
-			applyHover();
-		}
+		setHovered(found);
 	}
 
 	/**
-	 * The destination a menu entry belongs to, or null if the entry is not a travel log row.
+	 * The destination a menu entry belongs to, or null if the entry is neither one of our markers
+	 * nor a travel log row.
+	 * <p>
+	 * The two are found by different means, and the difference is forced rather than chosen. A
+	 * marker is a <b>dynamic</b> child of our layer, so {@code getId()} gives its parent's packed id
+	 * and every marker reports the same number — it can only be matched on <b>object identity</b>.
+	 * A log row is a <b>static</b> widget with an id of its own, and identity is not available for
+	 * it because the client rebuilds those widgets underneath us.
 	 * <p>
 	 * Favourite rows are matched through {@link #favouriteSlots} rather than a table, because which
 	 * of the ten slots holds which destination is not fixed — it is whatever the server last sent.
@@ -1690,8 +1683,22 @@ public class FairyRingMap
 	private RingDefinition ringForEntry(MenuEntry entry)
 	{
 		Widget widget = entry.getWidget();
-		if (widget == null
-			|| WidgetUtil.componentToInterface(widget.getId()) != InterfaceID.FAIRYRINGS_LOG)
+		if (widget == null)
+		{
+			return null;
+		}
+
+		// Our own markers first. Widget does not override equals, so this is an identity test
+		// against the very objects createIcon made.
+		for (RingIcon icon : icons)
+		{
+			if (icon.widget == widget)
+			{
+				return icon.ring;
+			}
+		}
+
+		if (WidgetUtil.componentToInterface(widget.getId()) != InterfaceID.FAIRYRINGS_LOG)
 		{
 			return null;
 		}
@@ -1804,8 +1811,6 @@ public class FairyRingMap
 			// Cleared rather than just un-drawn: the markers are hidden, so no leave event is
 			// coming for whichever one the cursor was over, and a hover left set would come back
 			// with the map.
-			hoveredMarker = null;
-			hoveredRow = null;
 			hovered = null;
 			showInset(null);
 		}
@@ -2412,8 +2417,6 @@ public class FairyRingMap
 		icons.clear();
 		favouriteSlots.clear();
 		selected = null;
-		hoveredMarker = null;
-		hoveredRow = null;
 		hovered = null;
 		filterActive = false;
 		blockLeft = null;
