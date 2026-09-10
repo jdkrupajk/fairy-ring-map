@@ -54,7 +54,11 @@ the player made on the game's own widget. Nothing is synthesised.
 is `ring-selected.png`, the highlighted row, and the game's own label orange. The row used to be
 white, which made the player check which of the two things they had picked.
 
-### Marker colours, and where "favourited" comes from
+The load-bearing part is the **invariant** — row and marker are one colour — not the hue. A cyan
+palette was tried on 2026-09-10 and `HIGHLIGHT_COLOUR` followed the marker to keep the invariant;
+when the palette came back to orange, so did it.
+
+### Marker colours
 
 Added 2026-09-07 — favourites get their own colour rather than being read as
 something wrong.
@@ -68,6 +72,60 @@ the ramp is the only thing that makes a marker read as a ring, and two sprites d
 stop looking like the same object in two colours. `cache-tools/tools/recolour-sprite.py` does it:
 each pixel is the base colour scaled by a brightness ratio, so reproducing the ratio against a new
 base is exact.
+
+#### The palette
+
+| state | colour | why |
+|---|---|---|
+| plain | `#3FD9C8` teal | reads on both land and sea; see below |
+| favourited | `#E92100` red | the travel log's own favourited heart |
+| selected | `#FF981F` orange | also the highlighted row and the game's label orange |
+| hovered | `#FFFFFF` white | |
+| locked | `#6A6A6A` grey | |
+
+**The favourite red comes from the game.** Sprite **1340** is the favourited state of the heart
+toggle the game draws on every row of the very interface this map covers, and `cache-tools`
+`SpriteDump` reads it out of the cache as `#E92800`; the marker uses `#E92100`, within 7/255 of it.
+Matching by eye off a screenshot would have reproduced the client's scaling and the screenshot's
+encoding — the cache holds the artist's values. The point of borrowing it is that the player has
+already learned this code two inches away, on the rows beside the map, so a red ring means what a
+red heart means and the map gets no private vocabulary.
+
+**The unfavourited heart's green `#04BC1E` was tried for the plain marker and rejected.** It is the
+symmetric idea and it fails on the map rather than in the palette: green markers sit on green
+terrain. Contrast against sampled backgrounds fell from 2.5–3.1 (teal) to 1.7–2.1, and the loss is
+worst exactly where most rings are. Teal has no such competition anywhere on the sprite, which is
+why it survives four rounds of recolouring as the plain state.
+
+##### What the separation actually measures
+
+Worst pair across all five states, under normal vision and all three deficiencies: **171**, against
+40 for "reads as the same colour at eleven pixels". `MarkerColoursTest` fails the build below that
+floor and `cache-tools/tools/marker-audit.py` prints the whole matrix.
+
+The colours are **shipped data**: they exist only as pixels in five PNGs and nothing in the source
+states them, so a recolour that destroys a distinction produces no compile error and no symptom
+that anyone with normal colour vision can see. That is why the guard is a test rather than a note.
+
+##### The protanopia collision this replaced
+
+Worth keeping because the failure mode generalises. `ring-fave` was a rose `#FF4D6D` against the
+grey `#6A6A6A` locked marker. Under **protanopia** — no functioning long-wavelength cone, about 1 %
+of men — the rose simulates to `(98, 101, 110)` and the grey to `(106, 106, 106)`: **17 apart**. The
+two states **mean opposite things**, so the failure was not "hard to tell apart", it was "the map
+reports every favourite as unreachable".
+
+Three things that came out of fixing it:
+
+- **A distinction carried by one channel is one a single deficiency can delete.** The rose and the
+  grey differed almost entirely in red, which is the channel protanopia discards.
+- **Brightening is not a fix.** `#FF9FB8` cleared the grey and then collapsed onto the plain teal
+  marker at 58 under deuteranopia — one collision traded for another.
+- **Saturation is what saved it.** `#E92100` is a dark saturated red, so it stays 174 from grey under
+  deuteranopia where a pale desaturated pink greys out. Red and green survive together for the same
+  reason: the game's two hearts differ in luminance as well as hue.
+
+### Where "favourited" comes from
 
 **Finding "which codes are favourited" has exactly one route, and it is not obvious.** Verified
 against the cache 2026-09-07:
@@ -456,7 +514,7 @@ and is the reason this was worth doing in two steps. What changed is the picture
 so it is a window onto that picture, and the window is moved by sliding the picture rather than by
 cropping anything. One sprite, one widget, no per-frame work.
 
-**What the picture used to be.** The shipped world map, at 0.1534 px/tile — so the "close-up"
+**What the picture used to be.** The shipped world map, at 0.1804 px/tile — so the "close-up"
 magnified nothing, and it had no pixels at all for the thirteen destinations that sit thousands of
 tiles north of the surface. Magnifying by shipping a higher-resolution world map does not scale:
 Java holds a decoded PNG at `w x h x 4` bytes, so 1.5 px/tile over a 2816 x 1728 tile world is
@@ -695,16 +753,24 @@ fits because the map is pushed up by the strip's height instead of being centred
 
 ### The map sprite
 
-`.../FairyRingMap/gielinor.png`, 432 × 250, generated from the local game cache by
+`.../FairyRingMap/gielinor.png`, **508 × 312**, generated from the local game cache by
 `cache-tools` `MapDump` — RuneLite's own `MapImageDumper`, the same tool the wiki used for its
 tiles, so the provenance is clean and BSD-2 compatible. Wiki imagery is CC BY-NC-SA 3.0 and
 cannot be bundled.
 
-World box: **x 1088–3904, y 2400–4032** (2816 × 1632 tiles → 0.1534 px/tile). Regenerate with:
+World box: **x 1088–3904, y 2304–4032** (2816 × 1728 tiles → **0.1804 px/tile**). Regenerate with:
 
 ```
-run.cmd MapDump "%USERPROFILE%\.runelite\jagexcache\oldschool\LIVE" "%USERPROFILE%\.runelite\cache\xtea.json" 0 1088 2400 3904 4032 432 gielinor.png
+run.cmd MapDump "%USERPROFILE%\.runelite\jagexcache\oldschool\LIVE" "%USERPROFILE%\.runelite\cache\xtea.json" 0 1088 2304 3904 4032 508 gielinor.png
 ```
+
+*Corrected 2026-09-10.* This section stated 432 × 250 at 0.1534 px/tile over y 2400–4032 — the
+sprite's dimensions before it was last re-rendered — so the command above would have produced a
+differently-scaled map than the one that ships, with no error to notice. The authority is
+`FairyRingDefinitions.json`'s `map` block, and `MapProjectionTest` and
+`theMapBoxMatchesTheSpriteThatWasRendered` pin it; the prose is what drifted. **The numbers in the two
+subsections below are the historical ones and are left as written**, because they record why the
+box is the size it is rather than what it currently is.
 
 `docs/projection-check.png` is the same box at 3× with every surface ring plotted — the visual
 proof that the projection is right.
@@ -767,7 +833,7 @@ tell users to report layout oddities with the other plugin's name.
 | `IconPlacement.java` | One icon inside one inset cell: sprite, and where. |
 | `InsetDefinition.java` | The inset sheet's grid geometry, read from the same JSON the generator wrote. |
 
-36 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
+39 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
 
 Three things worth remembering, because they are not obvious from the code:
 
@@ -789,14 +855,36 @@ Three things worth remembering, because they are not obvious from the code:
       possible locations, so nine extra cells would cover it. Two things are needed and neither is
       verified: the exact string the server writes into that row (nothing in the cache sets a log
       row's text, so it can only be read off a live client), and a wiki-checked list of the nine
-      locations with coordinates, since the cache has none for this ring. **Appending is free** —
-      cells 54–62 in an 8x8 grid, sheet 1056x800, ~3.38 MB resident — because the grid is row-major
-      and `cols` does not change, so every existing cell index keeps its meaning.
-- [ ] The "Show map" toggle now overlaps the map's top-right corner by about 9 px, because the map
-      grew from 380 to 432 px inside a 512 px interface while the toggle stayed under the close
-      button. Cosmetic; decide in game whether to move it.
-- [ ] Quantise `gielinor.png` to a palette; 180 KB is larger than it needs to be.
-- [ ] Hand nudges for `AJS`/`CIP` once it is clear how bad the overlap looks. The schema already
-      carries `offsetX` / `offsetY`.
-- [ ] A real icon. `icon.png` is drawn, not designed.
-- [ ] Hub submission: public repo, then a PR to `runelite/plugin-hub` pinning the commit.
+      locations with coordinates, since the cache has none for this ring. **Appending keeps every
+      existing cell index**, because the grid is row-major and `cols` does not change — but it is
+      no longer free. This item was written before the image budget was measured and quoted an
+      8x8 sheet at ~3.38 MB, which is now known to be roughly three times over the limit. At the
+      current 76x58 cell, 63 cells needs a 9x7 grid: 684 x 406 = **1,110,816 bytes**, above the
+      1 MiB that fits every observation and inside the untested part of the
+      [952,128, 1,273,536) bracket. Shrinking the cell to **74 x 56** gives 666 x 392 =
+      1,044,288, just under 1 MiB — so this costs a 3 % scale reduction across all 54 existing
+      close-ups, not a free append.
+- [ ] The "Show map" toggle overlaps the map's top-right corner by about 9 px, because the map
+      grew to 508 px inside a 512 px interface while the toggle stayed under the close button.
+      Cosmetic; decide in game whether to move it.
+- [ ] Quantise `gielinor.png` to a palette. **This does not reduce what the Plugin Hub counts** —
+      the formula is `w * h * 4` flat, whatever the colour depth — so it only shrinks the jar.
+### The icon
+
+`icon.png`, **48 × 43**, replacing the drawn placeholder 2026-09-10. The Plugin Hub takes an
+`icon.png` at the repo root **no larger than 48 × 72**, so 48 is the width cap and the artwork's
+1.12 aspect sets the height.
+
+It is the game's world map button sitting inside a fairy ring of mushrooms — the two things the
+plugin joins. Composited by Joe at 103 × 93; the source is kept at
+`D:\AI\VAULT\Attachments\Fairy Ring Map Build Data\Fairy_ring_icon_example.png`, with the
+high-resolution mushroom render beside it, because a 48 px PNG cannot be re-derived from itself.
+
+Fitted with a single Lanczos downscale plus a light unsharp mask (radius 1.0, amount 90,
+threshold 3) applied to **RGB only**. Sharpening the alpha channel as well is the mistake worth
+naming: it puts a halo of partially-transparent pixels around the silhouette, which reads as a
+dirty fringe against the Hub's background and cannot be seen at 1× on a light one.
+
+**The artwork is custom, which is what makes it usable.** Wiki imagery is CC BY-NC-SA 3.0 and
+cannot ship here for the same reason the world map is `MapImageDumper` output rather than a wiki
+tile — and the licence applies to the repo-root icon exactly as it does to a bundled resource.

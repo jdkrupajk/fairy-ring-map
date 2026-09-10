@@ -1,6 +1,7 @@
 package com.fairyringmap;
 
 import com.google.gson.Gson;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -442,13 +444,32 @@ public class FairyRingDefinitionsTest
 		}
 	}
 
+	/**
+	 * The JSON's sprite dimensions are read against {@code gielinor.png} itself, not against
+	 * literals. The projection divides the world box by these numbers, so if they and the image
+	 * ever disagree every marker lands in the wrong place — and the disagreement is invisible,
+	 * because both halves are individually valid. Asserting literals alone would have passed a
+	 * re-render at a new size that edited the JSON to match, which is the one way this can go
+	 * wrong in practice.
+	 */
 	@Test
-	public void theMapBoxMatchesTheSpriteThatWasRendered()
+	public void theMapBoxMatchesTheSpriteThatWasRendered() throws Exception
 	{
 		MapDefinition map = definitions.getMap();
 		assertEquals(508, map.getSpriteWidth());
 		assertEquals(312, map.getSpriteHeight());
 		assertTrue(map.getWorldX1() > map.getWorldX0());
 		assertTrue(map.getWorldY1() > map.getWorldY0());
+
+		BufferedImage sprite;
+		try (InputStream in = getClass().getResourceAsStream("/FairyRingMap/gielinor.png"))
+		{
+			assertNotNull("/FairyRingMap/gielinor.png is not on the classpath", in);
+			sprite = ImageIO.read(in);
+		}
+		assertEquals("gielinor.png is not the width the definitions claim",
+			map.getSpriteWidth(), sprite.getWidth());
+		assertEquals("gielinor.png is not the height the definitions claim",
+			map.getSpriteHeight(), sprite.getHeight());
 	}
 }

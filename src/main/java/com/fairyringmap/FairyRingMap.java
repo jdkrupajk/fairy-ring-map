@@ -144,6 +144,11 @@ public class FairyRingMap
 	 * Deliberately the same value as {@code ring-selected.png} and as the game's own label
 	 * orange: the map and the list are two views of one selection, and a white row beside an
 	 * orange marker made the player check which was which.
+	 * <p>
+	 * The invariant is that the row and its marker are one colour, so this tracks
+	 * {@code ring-selected.png} rather than being chosen independently. It happens to coincide
+	 * with {@link #LABEL_COLOUR}, which is a separate thing — the game's own label orange, on
+	 * text the game draws.
 	 */
 	private static final int HIGHLIGHT_COLOUR = 0xFF981F;
 	private static final int LABEL_COLOUR = 0xFF981F;
@@ -2271,6 +2276,12 @@ public class FairyRingMap
 	 * four share one hand-drawn shading ramp, recoloured rather than redrawn — at eleven pixels the
 	 * ramp is the only thing that makes a marker read as a ring, so two sprites drawn separately
 	 * stop looking like the same object in two colours. See {@code tools/recolour-sprite.py}.
+	 * <p>
+	 * <b>Favourited is the red of the travel log's own favourited heart</b> — {@code #E92100},
+	 * within 7/255 of sprite 1340's {@code #E92800}, which {@code cache-tools} {@code SpriteDump}
+	 * read out of the cache. The map borrows the code the player already learned on the rows
+	 * beside it rather than inventing a private one. The heart's unfavourited green was tried for
+	 * the plain marker and rejected: it disappears against the map's land.
 	 */
 	private int baseSprite(RingIcon icon)
 	{
