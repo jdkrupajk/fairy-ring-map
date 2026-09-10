@@ -408,12 +408,12 @@ cropping anything. One sprite, one widget, no per-frame work.
 magnified nothing, and it had no pixels at all for the thirteen destinations that sit thousands of
 tiles north of the surface. Magnifying by shipping a higher-resolution world map does not scale:
 Java holds a decoded PNG at `w x h x 4` bytes, so 1.5 px/tile over a 2816 x 1728 tile world is
-about **44 MB resident** for a window that only ever shows 132 x 100 of it.
+about **44 MB resident** for a window that only ever shows 112 x 85 of it.
 
-**What it is now.** A sheet of **54 pre-rendered close-ups**, 132 x 100 each at 1 px/tile, tiled
-8 x 7 into 1056 x 700 — about **2.96 MB resident**, and every pixel of it is a pixel the window can
-show. Eight times the map's own scale, and the off-map destinations rendered from their own regions
-like anywhere else.
+**What it is now.** A sheet of **54 pre-rendered close-ups**, 112 x 85 each at 1 px/tile, tiled
+9 x 6 into 1008 x 510 — about **2.06 MB resident**, and every pixel of it is a pixel the window can
+show. Five and a half times the map's own scale, and the off-map destinations rendered from their own
+regions like anywhere else. 54 is 9 x 6 exactly, so the grid wastes no cells.
 
 The arithmetic got *simpler*, which is the sign the sheet was the right shape:
 
@@ -528,9 +528,9 @@ icon the player asked for. A unit test fails on it, with the sprite id in the me
 Proved in game 2026-09-08 by drawing sprite 1453 in a 30 px box and getting a 30 px icon. Native is
 15 x 15 and is the only size guaranteed crisp — these are pixel art — so 15 is the default, and
 smaller is offered because it is by some distance the strongest clutter control available. The
-default of 12 icons is arithmetic, not taste: a cell is 132 x 100 = 13,200 px and an icon at native
-size covers 225, so twelve is about a fifth of the close-up given to icons. Forty would be over two
-thirds, which is the mat of overlapping circles that made baking them in unusable.
+default of 8 icons is arithmetic, not taste: a cell is 112 x 85 = 9,520 px and an icon at native
+size covers 225, so eight is about a fifth of the close-up given to icons. Forty would be over
+everything, which is the mat of overlapping circles that made baking them in unusable.
 
 ### Nothing is bundled
 

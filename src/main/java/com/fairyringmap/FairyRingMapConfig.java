@@ -44,8 +44,8 @@ public interface FairyRingMapConfig extends Config
 	@ConfigItem(
 		keyName = "showHoverInset",
 		name = "Show a closer look on hover",
-		description = "Show a close-up of whichever destination the cursor is over, at eight times "
-			+ "the map's own scale. Every destination but the player-owned house",
+		description = "Show a close-up of whichever destination the cursor is over, at five and a half "
+			+ "times the map's own scale. Every destination but the player-owned house",
 		position = 3
 	)
 	default boolean showHoverInset()
@@ -102,10 +102,13 @@ public interface FairyRingMapConfig extends Config
 	}
 
 	/**
-	 * Twelve by default, from area rather than taste: a cell is 132 x 100 px and an icon at its
-	 * native 15 x 15 covers 225 of the 13,200, so twelve is about a fifth of the close-up given over
-	 * to icons. Forty — what the definitions file carries — would be over two thirds, which is the
-	 * solid mat of overlapping circles that made baking them in unusable.
+	 * Eight by default, from area rather than taste: a cell is 112 x 85 px and an icon at its native
+	 * 15 x 15 covers 225 of the 9,520, so eight is about a fifth of the close-up given over to icons.
+	 * Forty — the ceiling the pool allows — would be more than the whole cell, which is the solid mat
+	 * of overlapping circles that made baking them in unusable.
+	 * <p>
+	 * Was twelve while a cell was 132 x 100. The cell shrank to fit the Plugin Hub's image check, and
+	 * a count tuned to the old area would have been half again too many in the new one.
 	 */
 	@ConfigItem(
 		keyName = "maxInsetIcons",
@@ -118,11 +121,12 @@ public interface FairyRingMapConfig extends Config
 	@Range(min = 0, max = FairyRingMap.ICON_POOL)
 	default int maxInsetIcons()
 	{
-		return 12;
+		return 8;
 	}
 
 	/**
-	 * Roughly one icon width, so two icons that survive do not sit on top of each other.
+	 * Roughly one icon width, so two icons that survive do not sit on top of each other. Scaled with
+	 * the cell when it shrank: 14 px across 132 is the same share of the view as 12 px across 112.
 	 * <p>
 	 * Measured as a square rather than a radius — the same test the sheet renderer used — because
 	 * the thing being kept apart is a square sprite.
@@ -138,7 +142,7 @@ public interface FairyRingMapConfig extends Config
 	@Range(min = 0, max = 40)
 	default int insetIconGap()
 	{
-		return 14;
+		return 12;
 	}
 
 	/**
