@@ -408,12 +408,21 @@ cropping anything. One sprite, one widget, no per-frame work.
 magnified nothing, and it had no pixels at all for the thirteen destinations that sit thousands of
 tiles north of the surface. Magnifying by shipping a higher-resolution world map does not scale:
 Java holds a decoded PNG at `w x h x 4` bytes, so 1.5 px/tile over a 2816 x 1728 tile world is
-about **44 MB resident** for a window that only ever shows 112 x 85 of it.
+about **44 MB resident** for a window that only ever shows 76 x 58 of it.
 
-**What it is now.** A sheet of **54 pre-rendered close-ups**, 112 x 85 each at 1 px/tile, tiled
-9 x 6 into 1008 x 510 — about **2.06 MB resident**, and every pixel of it is a pixel the window can
+**What it is now.** A sheet of **54 pre-rendered close-ups**, 76 x 58 each at 1 px/tile, tiled
+9 x 6 into 684 x 348 — **952,128 bytes resident**, and every pixel of it is a pixel the window can
 show. Five and a half times the map's own scale, and the off-map destinations rendered from their own
 regions like anywhere else. 54 is 9 x 6 exactly, so the grid wastes no cells.
+
+**The cell size was set by the Plugin Hub, not by taste.** The hub counts a bundled image as
+`width * height * 4` bytes flat, whatever the PNG's own colour depth — so palette-quantising cannot
+move the number and only the dimensions can. The limit is not published, so it was bracketed by
+submitting: 1056 x 700 (2,956,800) rejected, 1008 x 510 (2,056,320) rejected, and the shipped map
+sprite at 633,984 accepted. 684 x 348 clears both 1,000,000 and 1 MiB with margin.
+
+The cost is window area, not detail — magnification stays at 1 px/tile. 76 tiles still spans a whole
+town, which is what the close-up is for.
 
 The arithmetic got *simpler*, which is the sign the sheet was the right shape:
 

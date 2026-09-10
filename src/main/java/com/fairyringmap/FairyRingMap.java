@@ -115,7 +115,7 @@ public class FairyRingMap
 	static final int SPRITE_RING_LOCKED = -19405;
 	static final int SPRITE_RING_FAVE = -19406;
 	/**
-	 * The pre-rendered close-ups, 54 of them tiled 9 x 6 into one 1008 x 510 sheet.
+	 * The pre-rendered close-ups, 54 of them tiled 9 x 6 into one 684 x 348 sheet.
 	 * <p>
 	 * One sprite rather than 54 because a widget draws one sprite, and because the client's sprite
 	 * table is a flat map: 54 entries would be 54 registrations, 54 decodes and 54 lookups to
@@ -1348,11 +1348,11 @@ public class FairyRingMap
 	 * nothing, and it has no pixels at all for the thirteen destinations that sit thousands of tiles
 	 * north of the surface. Magnifying by shipping a higher-resolution world map does not scale:
 	 * Java holds a decoded PNG at {@code w * h * 4} bytes, and 1.5 px/tile over the world is about
-	 * 44 MB resident for a window that only ever shows 112 x 85 of it.
+	 * 44 MB resident for a window that only ever shows 76 x 58 of it.
 	 *
-	 * <p>So the picture is now a <b>sheet of 54 pre-rendered close-ups</b>, each 112 x 85 at
+	 * <p>So the picture is now a <b>sheet of 54 pre-rendered close-ups</b>, each 76 x 58 at
 	 * 1 px/tile — an eightfold magnification, and the off-map destinations rendered from their own
-	 * regions like anywhere else. 1008 x 510 is about 2.06 MB, and every pixel of it is a pixel the
+	 * regions like anywhere else. 684 x 348 is about 0.95 MB, and every pixel of it is a pixel the
 	 * window can actually show.
 	 *
 	 * <p>The arithmetic got <em>simpler</em> rather than harder, which is the sign the sheet was the

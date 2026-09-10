@@ -102,13 +102,14 @@ public interface FairyRingMapConfig extends Config
 	}
 
 	/**
-	 * Eight by default, from area rather than taste: a cell is 112 x 85 px and an icon at its native
-	 * 15 x 15 covers 225 of the 9,520, so eight is about a fifth of the close-up given over to icons.
-	 * Forty — the ceiling the pool allows — would be more than the whole cell, which is the solid mat
-	 * of overlapping circles that made baking them in unusable.
+	 * Five by default, from area rather than taste: a cell is 76 x 58 px and an icon at its native
+	 * 15 x 15 covers 225 of the 4,408, so five is about a quarter of the close-up given over to icons.
+	 * Forty — the ceiling the pool allows — would be several times the whole cell, which is the solid
+	 * mat of overlapping circles that made baking them into the sheet unusable.
 	 * <p>
-	 * Was twelve while a cell was 132 x 100. The cell shrank to fit the Plugin Hub's image check, and
-	 * a count tuned to the old area would have been half again too many in the new one.
+	 * Was twelve when a cell was 132 x 100. The cell shrank twice to fit the Plugin Hub's image
+	 * check, and a count tuned to the old area would have been three times too many in the new one.
+	 * The data has room to spare either way: the busiest cell offers sixteen.
 	 */
 	@ConfigItem(
 		keyName = "maxInsetIcons",
@@ -121,12 +122,13 @@ public interface FairyRingMapConfig extends Config
 	@Range(min = 0, max = FairyRingMap.ICON_POOL)
 	default int maxInsetIcons()
 	{
-		return 8;
+		return 5;
 	}
 
 	/**
-	 * Roughly one icon width, so two icons that survive do not sit on top of each other. Scaled with
-	 * the cell when it shrank: 14 px across 132 is the same share of the view as 12 px across 112.
+	 * Roughly one icon width, so two icons that survive do not sit on top of each other. Left at 12
+	 * as the cell shrank, which culls harder in a smaller view — deliberately, since crowding is what
+	 * a small cell suffers from.
 	 * <p>
 	 * Measured as a square rather than a radius — the same test the sheet renderer used — because
 	 * the thing being kept apart is a square sprite.
