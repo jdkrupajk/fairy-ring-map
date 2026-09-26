@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -438,14 +437,16 @@ public class FairyRingMap
 
 	private final List<RingIcon> icons = new ArrayList<>();
 	/**
-	 * Codes currently in the log's favourites block, and which of its ten slots each one occupies.
+	 * Which rings are unlocked and favourited, and which favourite row holds each - with the lifetime
+	 * of each fact. See {@link RingState} for why the account facts outlive the interface and the
+	 * slot map does not.
 	 * <p>
-	 * A favourited destination is drawn <em>only</em> in that block: the server blanks its ordinary
-	 * row and fills a favourite row instead. So this is not decoration — it is the map's only way
-	 * to know a favourited ring is unlocked at all, and the filter's only way to find the row it
-	 * has to leave standing.
+	 * The slot map is not decoration. A favourited destination is drawn <em>only</em> in the
+	 * favourites block - the server blanks its ordinary row - so it is the map's only way to know a
+	 * favourited ring is unlocked at all, and the filter's only way to find the row it has to leave
+	 * standing.
 	 */
-	private final Map<String, Integer> favouriteSlots = new LinkedHashMap<>();
+	private final RingState state = new RingState();
 	/**
 	 * Widgets hidden or shifted to leave one row standing; undone on every new selection.
 	 * <p>
@@ -541,49 +542,6 @@ public class FairyRingMap
 	 * which {@link #layout} already maintains for the close-up.
 	 */
 	private Widget[] codeLabels;
-
-	/**
-	 * Whether the interface has ever told us which rings are unlocked.
-	 * <p>
-	 * {@code RingIcon.available} is a boolean and therefore cannot say "not yet known", which it
-	 * needs to: availability arrives only when the game rebuilds the travel log, on script 8080,
-	 * and the map is drawn before that happens. Until then every ring read as locked, so the map
-	 * opened entirely grey and corrected itself the moment anything touched the log.
-	 * <p>
-	 * The map now assumes reachable until told otherwise. Both guesses are wrong for the same
-	 * fraction of a second, but this one is wrong about a handful of locked rings rather than
-	 * about all forty-two, and a ring that turns out to be locked greys a moment later - far less
-	 * alarming than a map that opens dead and comes alive when touched.
-	 */
-	private boolean availabilityKnown;
-
-	/**
-	 * Which destinations this account can reach, by code.
-	 * <p>
-	 * Kept here rather than on {@link RingIcon} because it is a fact about the account, not about
-	 * a widget. The icon list is rebuilt on every layout and thrown away entirely when the
-	 * interface closes, so state living on it starts blank each time the travel log is opened -
-	 * which meant the map opened grey every single time, not just the first. Availability only
-	 * arrives when the game rebuilds the log, so re-deriving it on open is not an option; it has
-	 * to be remembered for the session.
-	 * <p>
-	 * Deliberately not cleared by {@link #reset}: closing the interface does not relock anything.
-	 */
-	private final Set<String> unlockedCodes = new HashSet<>();
-
-	/**
-	 * Which destinations are favourited, by code. The same argument as {@link #unlockedCodes}:
-	 * an account fact, so it outlives the interface.
-	 * <p>
-	 * Deliberately separate from {@link #favouriteSlots}, which maps a code to <em>which of the
-	 * ten favourite rows</em> currently holds it. That is a fact about the rendered list, only
-	 * valid while the list is on screen, and it is what the filter and the menu-entry lookup need.
-	 * Drawing needs only "is this a favourite", which does not stop being true when the interface
-	 * closes - and treating the two as one field is why favourites lost their colour on reopen
-	 * while everything else kept theirs.
-	 */
-	private final Set<String> favouriteCodes = new HashSet<>();
-
 
 	/**
 	 * The plugin's own marker sprites, captured before the first recolour replaces them, so a
@@ -1375,11 +1333,10 @@ public class FairyRingMap
 			// Positions are centres; widgets are placed by their top-left corner.
 			box(widget, centreX - ICON_SIZE / 2, centreY - ICON_SIZE / 2, ICON_SIZE, ICON_SIZE);
 			RingIcon icon = new RingIcon(ring, widget);
-			// Seeded from the session's own record, which survives both a re-layout and the
-			// interface closing. The previous icon, when there is one, additionally carries the
+			// Availability comes from the session's own record, which survives both a re-layout and
+			// the interface closing. The previous icon, when there is one, additionally carries the
 			// search state, which is about the current view rather than the account.
-			icon.available = unlockedCodes.contains(ring.getCode());
-			icon.hiddenByConfig = !icon.available && config.hideUnavailable();
+			icon.hiddenByConfig = !state.isUnlocked(ring.getCode()) && config.hideUnavailable();
 			RingIcon before = previous.get(ring.getCode());
 			if (before != null)
 			{
@@ -2009,8 +1966,9 @@ public class FairyRingMap
 	 * A log row is a <b>static</b> widget with an id of its own, and identity is not available for
 	 * it because the client rebuilds those widgets underneath us.
 	 * <p>
-	 * Favourite rows are matched through {@link #favouriteSlots} rather than a table, because which
-	 * of the ten slots holds which destination is not fixed — it is whatever the server last sent.
+	 * Favourite rows are matched through {@link RingState#favouriteSlots} rather than a table,
+	 * because which of the ten slots holds which destination is not fixed — it is whatever the
+	 * server last sent.
 	 */
 	private RingDefinition ringForEntry(MenuEntry entry)
 	{
@@ -2039,7 +1997,7 @@ public class FairyRingMap
 		if (code == null)
 		{
 			int[] faveRows = FairyRingRows.faveBlockRows();
-			for (Map.Entry<String, Integer> fave : favouriteSlots.entrySet())
+			for (Map.Entry<String, Integer> fave : state.favouriteSlots().entrySet())
 			{
 				if (faveRows[fave.getValue()] == widget.getId())
 				{
@@ -2069,7 +2027,7 @@ public class FairyRingMap
 		// invokes in the middle of drawing the interface.
 		clientThread.invokeLater(() ->
 		{
-			if (!isUnlocked(ring.getCode()))
+			if (!readUnlocked(ring.getCode()))
 			{
 				return;
 			}
@@ -2217,16 +2175,16 @@ public class FairyRingMap
 	{
 		Widget contents = client.getWidget(InterfaceID.FairyringsLog.CONTENTS);
 		Widget faves = client.getWidget(InterfaceID.FairyringsLog.FAVES);
-		if (selected == null || contents == null || !isUnlocked(selected.getCode()))
+		if (selected == null || contents == null || !readUnlocked(selected.getCode()))
 		{
 			log.debug("filter not applied: selected={} contents={} unlocked={}",
 				selected == null ? "none" : selected.getCode(), contents != null,
-				selected != null && isUnlocked(selected.getCode()));
+				selected != null && readUnlocked(selected.getCode()));
 			return;
 		}
 
 		String code = selected.getCode();
-		Integer slot = favouriteSlots.get(code);
+		Integer slot = state.favouriteSlot(code);
 		Widget target = entryRow(code);
 		if (target == null)
 		{
@@ -2421,23 +2379,25 @@ public class FairyRingMap
 		boolean readSearch = rowChanges.isEmpty();
 		boolean searching = readSearch && searchActive();
 
+		// Read everything, record it, and only then paint. The paint asks RingState whether
+		// availability is known yet, and the first read that finds anything unlocked is what makes
+		// it known - so painting inside the read loop drew the first read against the answer from
+		// before it.
+		Map<String, Boolean> read = new HashMap<>();
 		for (RingIcon icon : icons)
 		{
-			icon.available = isUnlocked(icon.ring.getCode());
-			if (icon.available)
-			{
-				unlockedCodes.add(icon.ring.getCode());
-			}
-			else
-			{
-				unlockedCodes.remove(icon.ring.getCode());
-			}
+			read.put(icon.ring.getCode(), readUnlocked(icon.ring.getCode()));
 			if (readSearch)
 			{
 				icon.matched = !searching || rowMatchesSearch(icon.ring.getCode());
 			}
+		}
+		state.recordAvailability(read);
 
-			icon.hiddenByConfig = !icon.available && config.hideUnavailable();
+		for (RingIcon icon : icons)
+		{
+			boolean unlocked = state.isUnlocked(icon.ring.getCode());
+			icon.hiddenByConfig = !unlocked && config.hideUnavailable();
 			icon.widget.setHidden(iconHidden(icon));
 			icon.widget.setSpriteId(spriteFor(icon));
 
@@ -2445,24 +2405,8 @@ public class FairyRingMap
 			// and that you cannot reach it yet is more useful than an unnamed dot, and it is how
 			// the map doubles as a checklist of what is still to unlock. Clicking one does
 			// nothing: select() will not act on a row the game has left empty.
-			icon.widget.setAction(0, icon.available ? "Show" : "Locked");
-			icon.widget.setName(hoverName(icon.ring, icon.available));
-		}
-
-		// Only now is availability actually known, and only if the read found something.
-		//
-		// Marking it known unconditionally was wrong in two ways that both ended as a grey map:
-		// this runs on script 8080, which can fire before the map exists - reading an empty icon
-		// list and learning nothing - and it can run before the server has filled the rows, when
-		// every ring legitimately reads as locked. Either way the plugin recorded "availability
-		// is known and it is false for everything" and drew accordingly until the next rebuild.
-		//
-		// At least one ring unlocked is the signal that the rows carry real data. This does not
-		// stop later reads - refreshAvailability still runs on every 8080 - so it cannot repeat
-		// the old mistake of freezing the answer the first time one ring came back unlocked.
-		if (!unlockedCodes.isEmpty())
-		{
-			availabilityKnown = true;
+			icon.widget.setAction(0, unlocked ? "Show" : "Locked");
+			icon.widget.setName(hoverName(icon.ring, unlocked));
 		}
 
 		// The codes follow. This method repaints every marker inline, above, and used to stop
@@ -2489,7 +2433,7 @@ public class FairyRingMap
 	 * This used to skip any slot whose code label was hidden, which is a different question from
 	 * the one being asked. <b>Script 8080 hides favourite rows the current search does not match</b>
 	 * — hiding is how the search is implemented — so typing anything in the search box emptied this
-	 * map, {@link #isUnlocked(String)} then found only a blanked ordinary row for each favourite,
+	 * map, {@link #readUnlocked(String)} then found only a blanked ordinary row for each favourite,
 	 * and every favourite on the map turned grey.
 	 * <p>
 	 * The script's own test for "this slot holds a destination" is the row's text length, and the
@@ -2509,8 +2453,7 @@ public class FairyRingMap
 			return;
 		}
 
-		favouriteSlots.clear();
-		favouriteCodes.clear();
+		Map<String, Integer> slots = new LinkedHashMap<>();
 		int[] rows = FairyRingRows.faveBlockRows();
 		int[] labels = FairyRingRows.faveBlockCodeLabels();
 		for (int slot = 0; slot < labels.length; slot++)
@@ -2524,14 +2467,14 @@ public class FairyRingMap
 			String code = label == null ? null : LogRow.codeFromTarget(label.getText());
 			if (code != null)
 			{
-				favouriteSlots.put(code, slot);
-				favouriteCodes.add(code);
+				slots.put(code, slot);
 			}
 			// A slot the server filled but we cannot name is left out rather than guessed at. It was
 			// worth worrying about — the player-owned house's row text is written dynamically by the
 			// server, so it was the one destination whose code label might not be filled like the
 			// other nine — and it reads correctly, confirmed in game 2026-09-07.
 		}
+		state.recordFavourites(slots);
 	}
 
 	/**
@@ -2575,7 +2518,7 @@ public class FairyRingMap
 	/** The row a code is actually drawn in: its favourite row if it has one, its own row if not. */
 	private Widget entryRow(String code)
 	{
-		Integer slot = favouriteSlots.get(code);
+		Integer slot = state.favouriteSlot(code);
 		return slot == null
 			? rowWidget(code)
 			: client.getWidget(FairyRingRows.faveBlockRows()[slot]);
@@ -2588,10 +2531,13 @@ public class FairyRingMap
 	 * ordinary row carries text only while the destination is unlocked <em>and not favourited</em>;
 	 * favourite it and the server blanks that row and fills a favourites-block row instead. Reading
 	 * only the ordinary row is why every favourite came up Locked.
+	 * <p>
+	 * This reads the interface now. {@link RingState#isUnlocked} is what the last read found, and
+	 * is what drawing uses, because it is still true after the interface closes.
 	 */
-	private boolean isUnlocked(String code)
+	private boolean readUnlocked(String code)
 	{
-		if (favouriteSlots.containsKey(code))
+		if (state.favouriteSlot(code) != null)
 		{
 			return true;
 		}
@@ -2703,7 +2649,7 @@ public class FairyRingMap
 				icon.widget.getOriginalX() + ICON_SIZE / 2,
 				icon.widget.getOriginalY() + ICON_SIZE / 2);
 			obstacles.add(anchor);
-			if (mode == CodeLabels.ALL || favouriteCodes.contains(code))
+			if (mode == CodeLabels.ALL || state.isFavourite(code))
 			{
 				wanted.add(anchor);
 			}
@@ -2789,23 +2735,17 @@ public class FairyRingMap
 		}
 	}
 
+	/** Whether a marker should be drawn as somewhere the player can actually go. */
+	private boolean reachable(RingIcon icon)
+	{
+		return state.reachable(icon.ring.getCode(), icon.matched);
+	}
+
 	/**
 	 * A code's colour: the player's choice, except that a ring which is locked or excluded by the
 	 * log's search dims to grey. A bright label over a greyed-out marker reads as a bug, and that
 	 * outranks the colour setting because it is saying something the colour cannot.
 	 */
-	/**
-	 * Whether a marker should be drawn as somewhere the player can actually go.
-	 * <p>
-	 * The {@link #availabilityKnown} term is what stops the map opening grey: before the game has
-	 * said anything about which rings are unlocked, every ring is treated as reachable rather than
-	 * as locked.
-	 */
-	private boolean reachable(RingIcon icon)
-	{
-		return (!availabilityKnown || icon.available) && icon.matched;
-	}
-
 	private Color codeColourFor(RingIcon icon)
 	{
 		// Dim wins outright, including over "match ring colour". It is not a colour preference —
@@ -2816,7 +2756,7 @@ public class FairyRingMap
 			return CODE_COLOUR_DIM;
 		}
 
-		boolean favourite = favouriteCodes.contains(icon.ring.getCode());
+		boolean favourite = state.isFavourite(icon.ring.getCode());
 		Color own = favourite
 			? config.codeLabelFavouriteColour()
 			: config.codeLabelColour();
@@ -2892,7 +2832,7 @@ public class FairyRingMap
 		{
 			return SPRITE_RING_SELECTED;
 		}
-		if (favouriteCodes.contains(icon.ring.getCode()))
+		if (state.isFavourite(icon.ring.getCode()))
 		{
 			return SPRITE_RING_FAVE;
 		}
@@ -3025,7 +2965,7 @@ public class FairyRingMap
 		hideContainers();
 
 		icons.clear();
-		favouriteSlots.clear();
+		state.interfaceClosed();
 		selected = null;
 		hovered = null;
 		filterActive = false;
@@ -3092,7 +3032,6 @@ public class FairyRingMap
 	{
 		private final RingDefinition ring;
 		private final Widget widget;
-		private boolean available;
 		private boolean hiddenByConfig;
 		/**
 		 * Whether the log's search box, if one is in use, left this destination's row on screen.

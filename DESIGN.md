@@ -824,7 +824,8 @@ that the interface only reports occasionally — on script 8080, when the game r
 every reopen started from "nothing is unlocked, nothing is favourited" and the map drew grey until
 something happened to trigger another rebuild. It looked like a repaint bug and was not.
 
-- `unlockedCodes` and `favouriteCodes` are session state, not cleared by `reset()`.
+- Unlocked and favourited codes are session state, not cleared by `reset()`. They live in
+  `RingState`, which `reset()` tells only `interfaceClosed()`.
 - `favouriteSlots` stays view state: it maps a code to *which of the ten rows* holds it, which is
   only true while the list is on screen, and it is what the filter and the menu lookup need.
   Treating those two as one field is what broke favourites specifically.
@@ -977,8 +978,9 @@ tell users to report layout oddities with the other plugin's name.
 | `CodeLabels.java` | Off / favourites only / every destination. |
 | `CodeLabelSize.java` | The three usable fonts, each carrying the box the solver reserves. |
 | `SpriteRecolour.java` | Rebuilds a marker's pixels in a new colour. Pure, 5 tests pinned to the shipped PNGs. |
+| `RingState.java` | Unlocked, favourited, and which favourite row holds what — with each fact's lifetime. Pure, 8 tests. |
 
-54 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
+62 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
 
 Three things worth remembering, because they are not obvious from the code:
 
@@ -1014,12 +1016,13 @@ Three things worth remembering, because they are not obvious from the code:
       Cosmetic; decide in game whether to move it.
 - [ ] Quantise `gielinor.png` to a palette. **This does not reduce what the Plugin Hub counts** —
       the formula is `w * h * 4` flat, whatever the colour depth — so it only shrinks the jar.
-- [ ] **No test covers the state lifetimes**, and three bugs of that shape appeared in one
-      session. Guarding it means extracting the durable state — `unlockedCodes`,
-      `favouriteCodes`, `availabilityKnown` and the reachability rule — into a pure object, the
-      way `MapProjection`, `LogRow` and `LabelPlacement` already are. Everything that broke was
-      a fact with the wrong lifetime, which a pure object makes testable without a client: open,
-      read, close, reopen, assert the account facts survived and the view facts did not.
+- [x] **The state lifetimes are tested** (2026-09-26). The durable state moved out of
+      `FairyRingMap` into `RingState`, and `RingStateTest` walks open, read, close, reopen and
+      asserts the account facts survive and the slot map does not. Checked by reintroducing the
+      original bug — `interfaceClosed()` also clearing the account facts — which fails
+      `accountFactsSurviveTheInterfaceClosing`. The extraction also fixed a latent ordering
+      fault: markers were painted inside the read loop, before that read could mark availability
+      known, so the first read drew every ring against the answer from before it.
 
 ### The icon
 
