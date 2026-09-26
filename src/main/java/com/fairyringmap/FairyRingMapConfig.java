@@ -5,8 +5,10 @@
  */
 package com.fairyringmap;
 
+import java.awt.Color;
 import java.util.EnumSet;
 import java.util.Set;
+import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -65,6 +67,106 @@ public interface FairyRingMapConfig extends Config
 		return false;
 	}
 
+	@ConfigItem(
+		keyName = "codeLabels",
+		name = "Show codes on the map",
+		description = "Draw each destination's three-letter code beside its marker. Every "
+			+ "destination is useful for learning the codes; favourites only keeps the map clear",
+		position = 5
+	)
+	default CodeLabels codeLabels()
+	{
+		return CodeLabels.OFF;
+	}
+
+	@ConfigItem(
+		keyName = "codeLabelSize",
+		name = "Code size",
+		description = "Which of the game's fonts the codes are drawn in. There is no point size to "
+			+ "scale, so the choices are the fonts the client ships",
+		position = 6
+	)
+	default CodeLabelSize codeLabelSize()
+	{
+		return CodeLabelSize.SMALL;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "codeLabelColour",
+		name = "Code colour",
+		description = "Colour of a code on the map. White reads over both sea and forest; a code "
+			+ "on a locked or searched-out ring dims to grey whatever this is set to",
+		position = 7
+	)
+	default Color codeLabelColour()
+	{
+		return Color.WHITE;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "codeLabelFavouriteColour",
+		name = "Favourite code colour",
+		description = "Colour of a favourited destination's code",
+		position = 8
+	)
+	default Color codeLabelFavouriteColour()
+	{
+		return Color.WHITE;
+	}
+
+	@ConfigItem(
+		keyName = "codeLabelsMatchRings",
+		name = "Codes match ring colour",
+		description = "Draw each code in its own ring's colour instead of the two colours above. "
+			+ "A locked or searched-out ring still dims to grey either way",
+		position = 9
+	)
+	default boolean codeLabelsMatchRings()
+	{
+		return false;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "ringColour",
+		name = "Ring colour",
+		description = "Colour of an ordinary unlocked marker. Note the map itself is busy: very "
+			+ "dark or low-contrast colours disappear against terrain",
+		position = 10
+	)
+	default Color ringColour()
+	{
+		return new Color(0x3FD9C8);
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "ringFavouriteColour",
+		name = "Favourite ring colour",
+		description = "Colour of a favourited marker. The default is the red of the travel log's "
+			+ "own favourite heart, so the map matches the list beside it",
+		position = 11
+	)
+	default Color ringFavouriteColour()
+	{
+		return new Color(0xE92100);
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "ringLockedColour",
+		name = "Locked ring colour",
+		description = "Colour of a destination this account cannot use yet. Its code dims to grey "
+			+ "regardless, so the map still says unreachable if this is set to something bright",
+		position = 12
+	)
+	default Color ringLockedColour()
+	{
+		return new Color(0x6A6A6A);
+	}
+
 	// ---------------------------------------------------------------- the close-up's icons
 
 	String ICONS_SECTION = "icons";
@@ -72,7 +174,7 @@ public interface FairyRingMapConfig extends Config
 	@ConfigSection(
 		name = "Icons in the close-up",
 		description = "Which of the game's map icons the hover close-up draws, and how many",
-		position = 10,
+		position = 20,
 		closedByDefault = true
 	)
 	String iconsSection = ICONS_SECTION;

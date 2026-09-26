@@ -5,8 +5,12 @@
  */
 package com.fairyringmap;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.FontID;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.NodeCache;
 import net.runelite.api.Point;
+import net.runelite.api.SpritePixels;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.MenuOptionClicked;
@@ -32,7 +38,9 @@ import net.runelite.api.widgets.WidgetConfig;
 import net.runelite.api.widgets.WidgetType;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.util.ImageUtil;
 
 /**
  * The map that replaces the fairy ring travel log.
@@ -154,6 +162,106 @@ public class FairyRingMap
 	private static final int LABEL_COLOUR = 0xFF981F;
 	/** Locked destinations keep their tooltip; the colour is what says they are unreachable. */
 	private static final String LOCKED_COLOUR_TAG = "<col=8f8f8f>";
+
+	/**
+	 * A ring that is locked, or that the log's search has excluded, dims its code to the same grey
+	 * as {@link #LOCKED_COLOUR_TAG}. This is not configurable on purpose: it is not a colour
+	 * choice, it is the label agreeing with its marker about whether the ring is reachable.
+	 */
+	private static final Color CODE_COLOUR_DIM = new Color(0x8F8F8F);
+	/** The selection orange as a {@link Color}, for when codes follow their ring's colour. */
+	private static final Color SELECTED_CODE_COLOUR = new Color(HIGHLIGHT_COLOUR);
+
+	/**
+	 * The colours the shipped PNGs actually are. A configured colour equal to one of these means
+	 * "leave the artist's sprite alone" rather than "rebuild it identically" - see
+	 * {@link #overrideMarker}.
+	 */
+	private static final Color DEFAULT_RING_COLOUR = new Color(0x3FD9C8);
+	private static final Color DEFAULT_FAVE_COLOUR = new Color(0xE92100);
+	private static final Color DEFAULT_LOCKED_COLOUR = new Color(0x6A6A6A);
+	/** Plain and favourite are recolours of this one, which carries the hand-drawn shading ramp. */
+	private static final String BASE_MARKER = "/FairyRingMap/ring.png";
+	/**
+	 * Locked has its own base rather than sharing the ring's. It is a separately drawn sprite -
+	 * 64 opaque pixels against the ring's 80 - so recolouring it from {@link #BASE_MARKER} would
+	 * quietly change its shape as well as its colour.
+	 */
+	private static final String BASE_LOCKED = "/FairyRingMap/ring-locked.png";
+	/**
+	 * Space reserved for three uppercase letters at {@code PLAIN_11}, plus the shadow.
+	 * <p>
+	 * This is an assumed glyph size rather than a measured one, and it is deliberately generous:
+	 * the placement solver still fits all forty-two at 24x12, so being wrong by a few pixels costs
+	 * a slightly roomier layout rather than a collision.
+	 */
+	/**
+	 * Hand corrections to where the solver put a label, in pixels, applied after it has chosen.
+	 * <p>
+	 * The solver is right about collisions and occasionally wrong about taste: a position can be
+	 * geometrically clear and still read as belonging to the wrong marker. These are those cases,
+	 * named by Joe from the live map on 2026-09-26.
+	 * <p>
+	 * <b>Why a table here rather than reordering the solver's candidates.</b> Changing the
+	 * candidate order to improve two labels re-places all forty-two, including the forty that
+	 * already read correctly. A per-code nudge moves exactly what was asked for and nothing else.
+	 * <p>
+	 * <b>And why here rather than in the definitions JSON, where the marker {@code NUDGES} live.</b>
+	 * That file is generated, so a hand-edit vanishes on the next regeneration — which is precisely
+	 * why the marker nudges had to move into {@code generate-definitions.py}. A constant in this
+	 * class has no such problem, and a label offset is presentation rather than cache-derived data,
+	 * so it does not belong in a file describing the game's own rings.
+	 * <p>
+	 * Y is screen-down, so a negative Y moves a label up.
+	 */
+	private static final Map<String, int[]> LABEL_NUDGES = buildLabelNudges();
+
+	private static final int[] NO_NUDGE = {0, 0};
+
+	private static Map<String, int[]> buildLabelNudges()
+	{
+		Map<String, int[]> nudges = new HashMap<>();
+		// CJR had a nudge here and it overshot - reverted 2026-09-26. It is on its preferred
+		// side via LABEL_SIDES instead, which moves it a whole marker's width rather than 3px.
+		nudges.put("BKR", new int[]{0, 3});
+		return nudges;
+	}
+
+	/**
+	 * Which side of its marker a particular code should sit on, tried before the solver's own
+	 * order. Named from the live map on 2026-09-26.
+	 * <p>
+	 * A side is the right tool where a nudge is not: the solver's choice is a whole marker-width
+	 * away from where it should be, and shoving it there in pixels would leave it floating between
+	 * two rings. A preference re-runs the same collision test on the side a human picked.
+	 * <p>
+	 * It is a first choice, not a constraint - if that side is taken the code falls back through
+	 * the normal order rather than going missing.
+	 */
+	private static final Map<String, int[]> LABEL_SIDES = buildLabelSides();
+
+	private static Map<String, int[]> buildLabelSides()
+	{
+		Map<String, int[]> sides = new HashMap<>();
+		sides.put("BLR", RIGHT);
+		sides.put("AJR", RIGHT);
+		sides.put("DKP", ABOVE);
+		return sides;
+	}
+
+	private static final int[] RIGHT = {1, 0};
+	private static final int[] ABOVE = {0, -1};
+
+	/**
+	 * The codes for the thirteen off-map destinations, drawn in a row along the map's bottom edge,
+	 * directly above the strip icons they belong to.
+	 * <p>
+	 * There is no room inside the strip itself: it is {@link #STRIP_HEIGHT} tall against an
+	 * {@link #ICON_SIZE} icon, and {@link #OFF_MAP_GAP} is zero because the strip is deliberately
+	 * flush with the map. So the codes sit on the map's last few rows, which are open sea south of
+	 * Karamja. The surface solver is told about the band so no surface label can stray into it.
+	 */
+	private static final int OFF_MAP_CODE_GAP = 1;
 	/** Something for a panel to be, on the two panels that are still meant to be seen. */
 	private static final int BACKING_COLOUR = 0x1A1A1A;
 
@@ -421,6 +529,68 @@ public class FairyRingMap
 	/** Whether the off-map strip is being drawn this session, which the config decides. */
 	private boolean stripShown;
 
+	/**
+	 * The code labels, and the map's top-left corner in the layer's coordinates.
+	 * <p>
+	 * Held as fields rather than passed through because the labels are re-solved on a repaint as
+	 * well as on a layout: favouriting a destination changes which labels are wanted without
+	 * moving anything, and a repaint has no {@code slots} array to hand. Null until the first
+	 * layout, which is what {@link #refreshCodeLabels} checks before doing anything.
+	 * <p>
+	 * The map's corner it solves against is the existing {@code mapOriginX}/{@code mapOriginY},
+	 * which {@link #layout} already maintains for the close-up.
+	 */
+	private Widget[] codeLabels;
+
+	/**
+	 * Whether the interface has ever told us which rings are unlocked.
+	 * <p>
+	 * {@code RingIcon.available} is a boolean and therefore cannot say "not yet known", which it
+	 * needs to: availability arrives only when the game rebuilds the travel log, on script 8080,
+	 * and the map is drawn before that happens. Until then every ring read as locked, so the map
+	 * opened entirely grey and corrected itself the moment anything touched the log.
+	 * <p>
+	 * The map now assumes reachable until told otherwise. Both guesses are wrong for the same
+	 * fraction of a second, but this one is wrong about a handful of locked rings rather than
+	 * about all forty-two, and a ring that turns out to be locked greys a moment later - far less
+	 * alarming than a map that opens dead and comes alive when touched.
+	 */
+	private boolean availabilityKnown;
+
+	/**
+	 * Which destinations this account can reach, by code.
+	 * <p>
+	 * Kept here rather than on {@link RingIcon} because it is a fact about the account, not about
+	 * a widget. The icon list is rebuilt on every layout and thrown away entirely when the
+	 * interface closes, so state living on it starts blank each time the travel log is opened -
+	 * which meant the map opened grey every single time, not just the first. Availability only
+	 * arrives when the game rebuilds the log, so re-deriving it on open is not an option; it has
+	 * to be remembered for the session.
+	 * <p>
+	 * Deliberately not cleared by {@link #reset}: closing the interface does not relock anything.
+	 */
+	private final Set<String> unlockedCodes = new HashSet<>();
+
+	/**
+	 * Which destinations are favourited, by code. The same argument as {@link #unlockedCodes}:
+	 * an account fact, so it outlives the interface.
+	 * <p>
+	 * Deliberately separate from {@link #favouriteSlots}, which maps a code to <em>which of the
+	 * ten favourite rows</em> currently holds it. That is a fact about the rendered list, only
+	 * valid while the list is on screen, and it is what the filter and the menu-entry lookup need.
+	 * Drawing needs only "is this a favourite", which does not stop being true when the interface
+	 * closes - and treating the two as one field is why favourites lost their colour on reopen
+	 * while everything else kept theirs.
+	 */
+	private final Set<String> favouriteCodes = new HashSet<>();
+
+
+	/**
+	 * The plugin's own marker sprites, captured before the first recolour replaces them, so a
+	 * colour set back to its default restores the original artwork.
+	 */
+	private final Map<Integer, SpritePixels> shippedMarkers = new HashMap<>();
+
 	/** Where the dials were on the canvas when the layer was last positioned, so a move shows up. */
 	private int dialsCanvasX = Integer.MIN_VALUE;
 	private int dialsCanvasY = Integer.MIN_VALUE;
@@ -572,6 +742,101 @@ public class FairyRingMap
 	}
 
 	/**
+	 * React to a setting changing, without a second layout path.
+	 * <p>
+	 * Every visual setting here changes either the marker pixels or the map's geometry, and the
+	 * class already has one place that re-lays-out — {@link #onBeforeRender}, which does it when
+	 * the dials move. So rather than calling {@code build} from here and having two routes into
+	 * layout that can disagree, this **invalidates the cached size** and lets the existing path
+	 * notice on the next frame. One layout route, triggered two ways.
+	 * <p>
+	 * The sprite work does have to happen here, because it is not layout: recolouring replaces
+	 * entries in the client's sprite table and must run on the client thread.
+	 */
+	@Subscribe
+	public void onConfigChanged(ConfigChanged event)
+	{
+		if (!FairyRingMapConfig.GROUP.equals(event.getGroup()))
+		{
+			return;
+		}
+
+		clientThread.invokeLater(() ->
+		{
+			applyMarkerColours();
+			// Forces onBeforeRender to re-lay-out on the next frame, which picks up a new code
+			// size, a new label colour and anything else geometric.
+			laidOutWidth = -1;
+			repaintIcons();
+		});
+	}
+
+	/**
+	 * Push the configured marker colours into the client's sprite table.
+	 * <p>
+	 * A marker is a sprite, not text, so there is no colour to set — the only way to change one is
+	 * to build new pixels and replace the override. {@link SpriteRecolour} does the pixels; this
+	 * decides when.
+	 * <p>
+	 * <b>A default colour leaves the shipped sprite alone.</b> Not an optimisation: {@code ring.png}
+	 * is the hand-drawn original and the derived sprites are generated from it, so its soft edge
+	 * pixels sit marginally off the brightness ramp. Recolouring it to its own colour would produce
+	 * a very slightly different image — invisible, at alpha 4 — but there is no reason to replace
+	 * an artist's pixels with a reconstruction of them.
+	 * <p>
+	 * Must run on the client thread.
+	 */
+	private void applyMarkerColours()
+	{
+		overrideMarker(SPRITE_RING, config.ringColour(), DEFAULT_RING_COLOUR, BASE_MARKER);
+		overrideMarker(SPRITE_RING_FAVE, config.ringFavouriteColour(), DEFAULT_FAVE_COLOUR, BASE_MARKER);
+		overrideMarker(SPRITE_RING_LOCKED, config.ringLockedColour(), DEFAULT_LOCKED_COLOUR, BASE_LOCKED);
+
+		// Replacing the override is not enough, and this is the whole reason the first attempt at
+		// this did nothing visible. The client keeps a cache of resolved widget sprites keyed by
+		// id; a widget draws from that cache, not from the override map. Swap the map entry and
+		// the cache still holds the pixels it resolved the first time, so the marker keeps its old
+		// colour with no error anywhere. Resetting the cache forces the next draw to resolve again.
+		NodeCache spriteCache = client.getWidgetSpriteCache();
+		if (spriteCache != null)
+		{
+			spriteCache.reset();
+		}
+	}
+
+	private void overrideMarker(int spriteId, Color chosen, Color shipped, String basePath)
+	{
+		Map<Integer, SpritePixels> overrides = client.getSpriteOverrides();
+		if (overrides == null)
+		{
+			return;
+		}
+
+		// Remember the plugin's own PNG the first time, so returning a colour to its default can
+		// put the artwork back rather than a reconstruction of it.
+		shippedMarkers.computeIfAbsent(spriteId, overrides::get);
+
+		if (chosen == null || chosen.getRGB() == shipped.getRGB())
+		{
+			SpritePixels original = shippedMarkers.get(spriteId);
+			if (original != null)
+			{
+				overrides.put(spriteId, original);
+			}
+			return;
+		}
+
+		BufferedImage base = ImageUtil.loadImageResource(getClass(), basePath);
+		if (base == null)
+		{
+			log.debug("marker base sprite {} missing; leaving {} alone", basePath, spriteId);
+			return;
+		}
+		overrides.put(spriteId,
+			ImageUtil.getImageSpritePixels(SpriteRecolour.recolour(base, chosen), client));
+	}
+
+	/**
 	 * Follow the dials when the client is resized.
 	 * <p>
 	 * The layer is positioned by subtracting two canvas locations, which is a measurement, not a
@@ -649,6 +914,11 @@ public class FairyRingMap
 			log.debug("dial interface not present; leaving the native list alone");
 			return;
 		}
+
+		// Here as well as on a config change, so a colour saved in a previous session is applied
+		// the first time the map is built rather than only after the setting is next touched.
+		// Idempotent, and a no-op at the default colours.
+		applyMarkerColours();
 
 		Widget host = floaterFor(dials);
 		Point hostAt = host == null ? null : host.getCanvasLocation();
@@ -791,12 +1061,26 @@ public class FairyRingMap
 	/** How many children the layer holds when this class is done with it. */
 	private int slotCount()
 	{
-		return SLOT_FIRST_ICON + definitions.getRings().size() + 2;
+		return slotInsetBorder() + 2;
+	}
+
+	/**
+	 * One code label per ring, in the same order as the markers, so ring {@code i}'s label is at
+	 * {@code slotFirstLabel() + i} and no lookup is needed.
+	 * <p>
+	 * A label is made even for the thirteen off-map rings, which can never show one - the strip is
+	 * fifteen pixels tall against an eleven-pixel icon, so there is nowhere to put it. They are
+	 * built and left hidden for the same reason the off-map strip itself is: a child count that
+	 * varied with what is drawable would shift every later index.
+	 */
+	private int slotFirstLabel()
+	{
+		return SLOT_FIRST_ICON + definitions.getRings().size();
 	}
 
 	private int slotInsetBorder()
 	{
-		return SLOT_FIRST_ICON + definitions.getRings().size();
+		return slotFirstLabel() + definitions.getRings().size();
 	}
 
 	private int slotInset()
@@ -839,6 +1123,16 @@ public class FairyRingMap
 		for (RingDefinition ring : definitions.getRings())
 		{
 			createIcon(layer, ring);
+		}
+
+		// After every marker, so a label draws over a neighbouring marker rather than under it.
+		// The solver keeps labels off other markers anyway; this decides what happens when it
+		// cannot, and a half-hidden label is worse than one that simply sits on top.
+		for (int i = 0; i < definitions.getRings().size(); i++)
+		{
+			Widget label = text(layer, "", 1);
+			label.setFontId(FontID.PLAIN_11);
+			label.setHidden(true);
 		}
 
 		// The inset is made after the markers so it draws over them.
@@ -944,6 +1238,13 @@ public class FairyRingMap
 		box(offMapLabel, mapX, stripY, OFF_MAP_LABEL_WIDTH, STRIP_HEIGHT);
 
 		layoutIcons(slots, mapX, mapY, stripY);
+
+		codeLabels = new Widget[definitions.getRings().size()];
+		for (int i = 0; i < codeLabels.length; i++)
+		{
+			codeLabels[i] = slots[slotFirstLabel() + i];
+		}
+		refreshCodeLabels();
 		layoutToggle(slots, close);
 		layoutCloseFacade(close);
 
@@ -1028,6 +1329,21 @@ public class FairyRingMap
 	 */
 	private void layoutIcons(Widget[] slots, int mapX, int mapY, int stripY)
 	{
+		// Availability survives a re-layout, because a re-layout does not change it.
+		//
+		// This list is rebuilt from scratch every time the map is laid out, and a fresh RingIcon
+		// has available=false - the flag is only ever learned from the interface, on script 8080.
+		// So without carrying it across, every ring silently reads as locked from the moment of a
+		// resize or a settings change until the game next rebuilds the travel log. Markers drew
+		// grey and codes drew dim, and it looked like the plugin ignoring a setting rather than
+		// forgetting an unrelated fact. Measured 2026-09-26 by reading the widget back on each of
+		// the frames after a config change: correct on the first, dim on the next.
+		Map<String, RingIcon> previous = new HashMap<>();
+		for (RingIcon icon : icons)
+		{
+			previous.put(icon.ring.getCode(), icon);
+		}
+
 		icons.clear();
 
 		int stripX = mapX + OFF_MAP_LABEL_WIDTH;
@@ -1058,7 +1374,18 @@ public class FairyRingMap
 
 			// Positions are centres; widgets are placed by their top-left corner.
 			box(widget, centreX - ICON_SIZE / 2, centreY - ICON_SIZE / 2, ICON_SIZE, ICON_SIZE);
-			icons.add(new RingIcon(ring, widget));
+			RingIcon icon = new RingIcon(ring, widget);
+			// Seeded from the session's own record, which survives both a re-layout and the
+			// interface closing. The previous icon, when there is one, additionally carries the
+			// search state, which is about the current view rather than the account.
+			icon.available = unlockedCodes.contains(ring.getCode());
+			icon.hiddenByConfig = !icon.available && config.hideUnavailable();
+			RingIcon before = previous.get(ring.getCode());
+			if (before != null)
+			{
+				icon.matched = before.matched;
+			}
+			icons.add(icon);
 		}
 	}
 
@@ -1820,6 +2147,13 @@ public class FairyRingMap
 			showInset(null);
 		}
 
+		// The codes follow the map. Without this they were left hidden on the first opening and
+		// stayed that way until something unrelated repainted them: layout runs refreshCodeLabels
+		// while mapShown is still false, which correctly hides every label, and nothing set them
+		// back. Every other widget above is already driven from this one place; the labels were
+		// simply missing from the list.
+		refreshCodeLabels();
+
 		// The travel log is deliberately left alone. It was hidden here when the map was going to
 		// replace it; the map ended up over the dials instead, which do not overlap the log panel
 		// at all, so hiding the list only produced an empty panel next to a working map — and made
@@ -2090,6 +2424,14 @@ public class FairyRingMap
 		for (RingIcon icon : icons)
 		{
 			icon.available = isUnlocked(icon.ring.getCode());
+			if (icon.available)
+			{
+				unlockedCodes.add(icon.ring.getCode());
+			}
+			else
+			{
+				unlockedCodes.remove(icon.ring.getCode());
+			}
 			if (readSearch)
 			{
 				icon.matched = !searching || rowMatchesSearch(icon.ring.getCode());
@@ -2106,6 +2448,30 @@ public class FairyRingMap
 			icon.widget.setAction(0, icon.available ? "Show" : "Locked");
 			icon.widget.setName(hoverName(icon.ring, icon.available));
 		}
+
+		// Only now is availability actually known, and only if the read found something.
+		//
+		// Marking it known unconditionally was wrong in two ways that both ended as a grey map:
+		// this runs on script 8080, which can fire before the map exists - reading an empty icon
+		// list and learning nothing - and it can run before the server has filled the rows, when
+		// every ring legitimately reads as locked. Either way the plugin recorded "availability
+		// is known and it is false for everything" and drew accordingly until the next rebuild.
+		//
+		// At least one ring unlocked is the signal that the rows carry real data. This does not
+		// stop later reads - refreshAvailability still runs on every 8080 - so it cannot repeat
+		// the old mistake of freezing the answer the first time one ring came back unlocked.
+		if (!unlockedCodes.isEmpty())
+		{
+			availabilityKnown = true;
+		}
+
+		// The codes follow. This method repaints every marker inline, above, and used to stop
+		// there - so when the first real read landed the markers corrected themselves and the
+		// labels kept whatever colour they were given before anything was known. That is the
+		// whole of "the first open needs an interaction to colour favourites": the interaction
+		// was not fixing the read, it was providing a second event that happened to repaint
+		// labels too.
+		refreshCodeLabels();
 	}
 
 	/**
@@ -2144,6 +2510,7 @@ public class FairyRingMap
 		}
 
 		favouriteSlots.clear();
+		favouriteCodes.clear();
 		int[] rows = FairyRingRows.faveBlockRows();
 		int[] labels = FairyRingRows.faveBlockCodeLabels();
 		for (int slot = 0; slot < labels.length; slot++)
@@ -2158,6 +2525,7 @@ public class FairyRingMap
 			if (code != null)
 			{
 				favouriteSlots.put(code, slot);
+				favouriteCodes.add(code);
 			}
 			// A slot the server filled but we cannot name is left out rather than guessed at. It was
 			// worth worrying about — the player-owned house's row text is written dynamically by the
@@ -2236,8 +2604,239 @@ public class FairyRingMap
 	{
 		for (RingIcon icon : icons)
 		{
-			icon.widget.setSpriteId(spriteFor(icon));
+			int sprite = spriteFor(icon);
+			icon.widget.setSpriteId(sprite);
+			icon.widget.setOpacity(markerOpacityFor(sprite));
 		}
+		refreshCodeLabels();
+	}
+
+	/**
+	 * How transparent a marker is drawn, as widget opacity.
+	 * <p>
+	 * <b>This is where marker transparency has to live.</b> The obvious place was the pixels, and
+	 * it silently does nothing: the client's {@code SpritePixels} has no alpha channel at all -
+	 * {@code getPixels()} is an {@code int[]} in which 0 means transparent - so a partially
+	 * transparent PNG is flattened on conversion. Widget opacity is the only per-marker control
+	 * the client actually honours, and it is inverted: 0 is opaque, 255 invisible.
+	 * <p>
+	 * Keyed on the sprite rather than the ring's state so the two cannot disagree. Plain, favourite
+	 * and locked are configurable; hover and selection are not and stay fully opaque, because both
+	 * are transient answers to "which one am I pointing at" and fading them defeats the point.
+	 * <p>
+	 * Locked being fadeable is the useful one: it is the state a player most often wants pushed
+	 * into the background, and unlike hiding it outright the ring still shows where it is.
+	 */
+	private int markerOpacityFor(int sprite)
+	{
+		if (sprite == SPRITE_RING)
+		{
+			return 255 - config.ringColour().getAlpha();
+		}
+		if (sprite == SPRITE_RING_FAVE)
+		{
+			return 255 - config.ringFavouriteColour().getAlpha();
+		}
+		if (sprite == SPRITE_RING_LOCKED)
+		{
+			return 255 - config.ringLockedColour().getAlpha();
+		}
+		return 0;
+	}
+
+	/**
+	 * Decide which codes are drawn, solve where they go, and write them.
+	 * <p>
+	 * Run from {@link #layout} and from every repaint, because the wanted set moves for reasons
+	 * that are not layout: favouriting a destination adds a label in favourites mode, unlocking one
+	 * adds a label in every mode, and a search greying a ring out dims its label.
+	 * <p>
+	 * <b>The solve covers only the labels actually being drawn.</b> Solving all forty-two and then
+	 * hiding most would make a favourite take a worse position to avoid a label nobody can see. The
+	 * cost of re-solving is forty-two anchors against eight candidates, which is nothing next to
+	 * the widget writes that follow it.
+	 * <p>
+	 * <b>Every marker is an obstacle, labelled or not.</b> In favourites mode almost all of them
+	 * are unlabelled, and a label covering an unlabelled ring's marker hides a click target just as
+	 * thoroughly as one covering a favourite's.
+	 */
+	private void refreshCodeLabels()
+	{
+		if (codeLabels == null)
+		{
+			return;
+		}
+
+		for (Widget label : codeLabels)
+		{
+			label.setHidden(true);
+		}
+
+		CodeLabels mode = config.codeLabels();
+		if (mode == CodeLabels.OFF || !mapShown)
+		{
+			return;
+		}
+
+		CodeLabelSize size = config.codeLabelSize();
+		int labelWidth = size.getWidth();
+		int labelHeight = size.getHeight();
+
+		// The off-map codes occupy a band along the map's bottom edge. Reserving it by shrinking
+		// the solver's bounds is what keeps a surface label out of it - cheaper and harder to get
+		// wrong than adding a pseudo-obstacle, because a bound cannot be forgotten in one branch.
+		boolean offMapCodes = stripShown && offMapCount() > 0;
+		int solveBottom = mapOriginY + mapHeight()
+			- (offMapCodes ? labelHeight + OFF_MAP_CODE_GAP : 0);
+
+		List<LabelPlacement.Anchor> obstacles = new ArrayList<>();
+		List<LabelPlacement.Anchor> wanted = new ArrayList<>();
+		for (RingIcon icon : icons)
+		{
+			if (!icon.ring.isOnSurface() || iconHidden(icon))
+			{
+				continue;
+			}
+			String code = icon.ring.getCode();
+			LabelPlacement.Anchor anchor = new LabelPlacement.Anchor(
+				code,
+				icon.widget.getOriginalX() + ICON_SIZE / 2,
+				icon.widget.getOriginalY() + ICON_SIZE / 2);
+			obstacles.add(anchor);
+			if (mode == CodeLabels.ALL || favouriteCodes.contains(code))
+			{
+				wanted.add(anchor);
+			}
+		}
+
+		Map<String, LabelPlacement> placed = LabelPlacement.solve(
+			wanted, obstacles,
+			labelWidth, labelHeight, ICON_SIZE / 2,
+			mapOriginX, mapOriginY,
+			mapOriginX + mapWidth(), solveBottom,
+			LABEL_SIDES);
+
+		List<RingDefinition> rings = definitions.getRings();
+		for (int i = 0; i < rings.size(); i++)
+		{
+			RingIcon icon = icons.get(i);
+			RingDefinition ring = rings.get(i);
+			String code = ring.getCode();
+			Widget label = codeLabels[i];
+
+			int left;
+			int top;
+			if (ring.isOnSurface())
+			{
+				LabelPlacement spot = placed.get(code);
+				if (spot == null)
+				{
+					continue;
+				}
+				int[] nudge = LABEL_NUDGES.getOrDefault(code, NO_NUDGE);
+				left = icon.widget.getOriginalX() + ICON_SIZE / 2 + spot.getOffsetX()
+					- labelWidth / 2 + nudge[0];
+				top = icon.widget.getOriginalY() + ICON_SIZE / 2 + spot.getOffsetY()
+					- labelHeight / 2 + nudge[1];
+			}
+			else
+			{
+				// Strip codes need no solving: the strip spaces its icons evenly, so each code
+				// sits directly above its own and they cannot collide with each other.
+				if (!offMapCodes || iconHidden(icon))
+				{
+					continue;
+				}
+				left = icon.widget.getOriginalX() + ICON_SIZE / 2 - labelWidth / 2;
+				top = solveBottom;
+			}
+
+			Color colour = codeColourFor(icon);
+			// The colour is written into the text as a tag, not set with setTextColor.
+			//
+			// Measured 2026-09-26, because this is not obvious and cost several rounds: the
+			// widget accepts setTextColor and reads the new value straight back, and the client
+			// goes on drawing the old colour until some unrelated interaction. setText, by
+			// contrast, reaches the screen immediately - proved by making the text change on the
+			// same event and watching it appear while the colour did not. So the colour travels
+			// by the path that demonstrably works. The game's own travel log rows are coloured
+			// the same way, with <col=...> tags, so this is the interface's native idiom rather
+			// than a workaround.
+			label.setText(String.format("<col=%06x>%s</col>", colour.getRGB() & 0xFFFFFF, code));
+			label.setFontId(size.getFontId());
+			label.setTextColor(colour.getRGB() & 0xFFFFFF);
+
+			// Temporary, 2026-09-26. A code's colour is computed correctly and written here twice
+			// a second, and the screen does not follow until the player hovers a travel log row.
+			// Two candidates and they need separating rather than guessing: either this Widget is
+			// a stale object the client has replaced (so the write lands on an orphan), or the
+			// write lands correctly and the client simply is not repainting the interface.
+			// Comparing the object against the live child answers it outright.
+			label.setOpacity(255 - colour.getAlpha());
+			box(label, left, top, labelWidth, labelHeight);
+			label.setHidden(false);
+
+		}
+
+		// Revalidating each label is not enough on its own: the writes land - proved by reading
+		// the colour straight back - but nothing reaches the screen until some unrelated
+		// interaction, such as hovering a travel log row, happens to dirty the interface.
+		// Revalidating the layer they live in is the one lever left that covers all of them at
+		// once. Cheap, and it runs at most twice a second.
+		if (container != null)
+		{
+			container.revalidate();
+		}
+	}
+
+	/**
+	 * A code's colour: the player's choice, except that a ring which is locked or excluded by the
+	 * log's search dims to grey. A bright label over a greyed-out marker reads as a bug, and that
+	 * outranks the colour setting because it is saying something the colour cannot.
+	 */
+	/**
+	 * Whether a marker should be drawn as somewhere the player can actually go.
+	 * <p>
+	 * The {@link #availabilityKnown} term is what stops the map opening grey: before the game has
+	 * said anything about which rings are unlocked, every ring is treated as reachable rather than
+	 * as locked.
+	 */
+	private boolean reachable(RingIcon icon)
+	{
+		return (!availabilityKnown || icon.available) && icon.matched;
+	}
+
+	private Color codeColourFor(RingIcon icon)
+	{
+		// Dim wins outright, including over "match ring colour". It is not a colour preference —
+		// it is the label agreeing with its marker about whether the ring can be reached, and a
+		// bright code over a greyed marker reads as a bug whatever the palette.
+		if (!reachable(icon))
+		{
+			return CODE_COLOUR_DIM;
+		}
+
+		boolean favourite = favouriteCodes.contains(icon.ring.getCode());
+		Color own = favourite
+			? config.codeLabelFavouriteColour()
+			: config.codeLabelColour();
+
+		if (!config.codeLabelsMatchRings())
+		{
+			return own;
+		}
+
+		// Deliberately the ring's *base* colour, not spriteFor's: hover and selection are
+		// transient, and a code that changed colour as the cursor crossed it would flicker.
+		Color ring = icon.ring == selected
+			? SELECTED_CODE_COLOUR
+			: (favourite ? config.ringFavouriteColour() : config.ringColour());
+
+		// Hue *and* transparency, both from the ring: "match" means match. An earlier version
+		// took only the hue, on a theory about why enabling this appeared to do nothing. That
+		// theory was wrong - the real cause was a repaint, not the alpha - and matching only half
+		// the colour left a faded ring wearing a solid code, which reads as a mistake.
+		return ring;
 	}
 
 	/**
@@ -2255,7 +2854,7 @@ public class FairyRingMap
 	 */
 	private int spriteFor(RingIcon icon)
 	{
-		if (!icon.available || !icon.matched)
+		if (!reachable(icon))
 		{
 			return SPRITE_RING_LOCKED;
 		}
@@ -2285,7 +2884,7 @@ public class FairyRingMap
 	 */
 	private int baseSprite(RingIcon icon)
 	{
-		if (!icon.available)
+		if (!reachable(icon))
 		{
 			return SPRITE_RING_LOCKED;
 		}
@@ -2293,7 +2892,7 @@ public class FairyRingMap
 		{
 			return SPRITE_RING_SELECTED;
 		}
-		if (favouriteSlots.containsKey(icon.ring.getCode()))
+		if (favouriteCodes.contains(icon.ring.getCode()))
 		{
 			return SPRITE_RING_FAVE;
 		}

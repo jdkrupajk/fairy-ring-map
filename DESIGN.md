@@ -727,6 +727,147 @@ already invalidated — a stale `Widget` reference, an id-keyed undo map, and no
 an interface rebuild. **Anything remembered about an interface has to be re-derived or explicitly
 carried; nothing survives by default.**
 
+## Codes on the map
+
+Added 2026-09-26. Each destination's three-letter code can be drawn beside its marker, set by
+`Show codes on the map`: off, favourites only, or every destination. Off by default, because the
+map exists so the code does not have to be known — you click a place, not a code — so forty-two
+labels are clutter for anyone who already has what they came for. The two smaller cases are worth
+serving: someone learning the codes wants them all, and someone with eight favourites wants
+exactly those eight.
+
+### Placement is solved, not offset
+
+One fixed offset fails on this map. Measured against the shipped definitions at a 17x9 label:
+**seven pairs of labels overlap and nine labels land on a different ring's marker.** The second is
+the real damage — a label over a marker hides a click target. The cause is the crowding already
+documented above: `BIS`/`DJP` 7.7 px, `BKR`/`CKS` 8.1, `AIR`/`DJP` 8.2, `AJS`/`CIP` 8.8. A
+seventeen-pixel label does not fit in an eight-pixel gap and no single offset can make it.
+
+So each label gets **eight candidate positions** — below, above, right, left, then the diagonals —
+and takes the first that hits no other label, no other ring's marker and no map edge. Anchors are
+processed **most crowded first**, ascending distance to nearest neighbour, so the rings with the
+fewest options choose before the ones with a coastline to themselves. That places all 42 with zero
+overlap, and still does at 24x12.
+
+Greedy, not optimal: it can fail where an exhaustive search would succeed. A ring it cannot place
+is **left unlabelled rather than drawn overlapping** — a missing label is a gap, a colliding one is
+a lie about where a ring is.
+
+`LabelPlacement` is pure — coordinates in, coordinates out, no `Widget` — for the same reason
+`MapProjection` and `LogRow` are, and it has eight tests including one that runs it against the
+real shipped definitions. **Ties break on the ring code**, because without that two equidistant
+rings could swap between runs and every assertion would be a coin toss.
+
+`LABEL_SIDES` names a preferred side for particular codes, tried first; `LABEL_NUDGES` shifts one
+by a few pixels after the fact. Both live in `FairyRingMap` rather than the definitions JSON —
+unlike the marker `NUDGES`, which had to move into the generator because the JSON is regenerated.
+A label offset is presentation, not cache-derived data.
+
+### Size is a font, not a number
+
+Widget text uses the game's bitmap fonts, loaded by id. There is no point size to scale, so
+"bigger" means "a different font" and the choices are what the client ships. **Each size carries
+the box the solver reserves**, in one enum constant, so the two cannot drift.
+
+The list stops at `BOLD_12` because the map is full. With the off-map band reserved, the largest
+width that still places all forty-two is 29 at height 10–11, 25 at height 12, and 20 at height 15.
+`VERDANA_13_BOLD` at 30x15 leaves `AIQ`, `CIQ`, `CLS` and `DKP` unplaceable, and widening the
+solver to sixteen candidate directions fixes 28x14 but still not 30x15. An "extra small" using
+`QUILL_8` was built and rejected in game: a decorative serif at eight pixels is harder to read on
+terrain, not easier.
+
+### The off-map codes sit on the map's bottom edge
+
+The thirteen strip destinations get codes too, in a row directly above their icons. There is no
+room inside the strip — it is 15 px tall against an 11 px icon and `OFF_MAP_GAP` is zero because
+the strip is deliberately flush — so the codes occupy the map's last few rows, which are open sea
+south of Karamja. The surface solver's bottom bound is pulled up by the band height, which is
+cheaper and harder to get wrong than adding a pseudo-obstacle: a bound cannot be forgotten in one
+branch.
+
+## Four things the client does that cost a session to find
+
+All four were established by measurement after reasoning failed, and all four are invisible —
+nothing errors, nothing logs, the wrong thing simply keeps being drawn.
+
+### A sprite override is not enough; the widget sprite cache must be reset
+
+Replacing an entry in `client.getSpriteOverrides()` changes nothing on screen. The client keeps a
+cache of resolved widget sprites keyed by id, and a widget draws from that cache. Swap the map
+entry and the old pixels keep being drawn, with no error anywhere.
+`client.getWidgetSpriteCache().reset()` forces the next draw to resolve again.
+
+### SpritePixels has no alpha channel
+
+`getPixels()` is an `int[]` in which 0 means transparent — one-bit transparency. A partially
+transparent PNG is flattened by `getImageSpritePixels`, so baking alpha into a recoloured sprite
+looks right and does nothing. **Marker transparency is widget opacity**, which is inverted: 0 is
+opaque, 255 invisible. `SpriteRecolour` therefore ignores its target's alpha on purpose, and a test
+pins that so nobody "fixes" it.
+
+### Widget text colour has to travel in the text
+
+`setTextColor` is accepted and reads straight back, and the client goes on drawing the old colour
+until some unrelated interaction. `setText`, on the same event with the same widget, reaches the
+screen immediately — proved by changing both at once and watching only the text change. So a
+code's colour is written as a `<col=rrggbb>` tag inside the text. This is the interface's own
+idiom; the travel log's rows are coloured the same way.
+
+### Account facts must outlive the interface; view facts must not
+
+The session's main lesson, arrived at through three bugs with one shape.
+
+`RingIcon` is rebuilt on every layout and thrown away entirely by `reset()` when the interface
+closes. Availability and favourites were stored on it, and both are facts about the **account**
+that the interface only reports occasionally — on script 8080, when the game rebuilds the log. So
+every reopen started from "nothing is unlocked, nothing is favourited" and the map drew grey until
+something happened to trigger another rebuild. It looked like a repaint bug and was not.
+
+- `unlockedCodes` and `favouriteCodes` are session state, not cleared by `reset()`.
+- `favouriteSlots` stays view state: it maps a code to *which of the ten rows* holds it, which is
+  only true while the list is on screen, and it is what the filter and the menu lookup need.
+  Treating those two as one field is what broke favourites specifically.
+- `availabilityKnown` exists because a boolean cannot say *not yet known*, which is the map's
+  state before the first read. Until then every ring is drawn reachable rather than locked: both
+  guesses are wrong for a moment, but this one is wrong about a handful of locked rings instead of
+  about all forty-two. It is set only when a read actually found something, because 8080 can fire
+  before the map exists or before the server has filled the rows.
+- `refreshAvailability` ends by refreshing the labels. It repaints markers inline and used to stop
+  there, so a late read corrected the markers and left the codes as they were.
+
+This does not contradict the standing rule that anything remembered about an interface must be
+re-derivable. It is its complement: **where the interface will not tell you again on demand, the
+fact has to be carried.**
+
+## Marker colours are configurable
+
+Added 2026-09-26. Plain, favourite and locked take a colour and an alpha; hover and selection do
+not, because both are transient answers to "which one am I pointing at" and fading them defeats
+the point. Codes take their own two colours, or follow their ring's with `Codes match ring colour`.
+
+A marker is a sprite, so there is no colour to set: `SpriteRecolour` rebuilds the pixels with the
+same brightness-ramp formula as `cache-tools/tools/recolour-sprite.py`, and a test asserts the
+Java reproduces that script's output **pixel for pixel** on the shipped sprites. Locked recolours
+from its own base, not the ring's — it is a separately drawn sprite, 64 opaque pixels against 80,
+so sharing a base would change its shape as well as its colour.
+
+**A colour left at its default restores the shipped PNG rather than rebuilding it.** `ring.png` is
+hand-drawn and the others were generated from it, so its soft edge sits fractionally off the ramp;
+there is no reason to replace an artist's pixels with a reconstruction of them.
+
+A code dims to grey when its ring is locked or excluded by the search, whatever the colour
+settings say. That is not a colour choice — it is the label agreeing with its marker about whether
+the ring can be reached.
+
+### The sprites are trimmed to a circle
+
+The markers' dark shading used to fill the corners of the 11x11 square, outside the ring. At full
+opacity the bright colour dominated and it read as an outline; faded, the square dark footprint
+stayed proportionally as visible and a black box appeared around each marker. Everything beyond
+radius 5.5 is now transparent — 24 pixels per sprite, the brightest removed being `(45,156,144)`,
+shading rather than ring. The colour-separation audit is unchanged at 171.
+
 ## Data
 
 `src/main/resources/com/fairyringmap/FairyRingDefinitions.json` — generated by
@@ -832,8 +973,12 @@ tell users to report layout oddities with the other plugin's name.
 | `MapIcon.java` | The 76 map icons in priority order. Declared order *is* the ranking. |
 | `IconPlacement.java` | One icon inside one inset cell: sprite, and where. |
 | `InsetDefinition.java` | The inset sheet's grid geometry, read from the same JSON the generator wrote. |
+| `LabelPlacement.java` | Where each code label goes. Pure, 8 tests, run against the shipped definitions. |
+| `CodeLabels.java` | Off / favourites only / every destination. |
+| `CodeLabelSize.java` | The three usable fonts, each carrying the box the solver reserves. |
+| `SpriteRecolour.java` | Rebuilds a marker's pixels in a new colour. Pure, 5 tests pinned to the shipped PNGs. |
 
-39 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
+54 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
 
 Three things worth remembering, because they are not obvious from the code:
 
@@ -869,6 +1014,13 @@ Three things worth remembering, because they are not obvious from the code:
       Cosmetic; decide in game whether to move it.
 - [ ] Quantise `gielinor.png` to a palette. **This does not reduce what the Plugin Hub counts** —
       the formula is `w * h * 4` flat, whatever the colour depth — so it only shrinks the jar.
+- [ ] **No test covers the state lifetimes**, and three bugs of that shape appeared in one
+      session. Guarding it means extracting the durable state — `unlockedCodes`,
+      `favouriteCodes`, `availabilityKnown` and the reachability rule — into a pure object, the
+      way `MapProjection`, `LogRow` and `LabelPlacement` already are. Everything that broke was
+      a fact with the wrong lifetime, which a pure object makes testable without a client: open,
+      read, close, reopen, assert the account facts survived and the view facts did not.
+
 ### The icon
 
 `icon.png`, **48 × 43**, replacing the drawn placeholder 2026-09-10. The Plugin Hub takes an
