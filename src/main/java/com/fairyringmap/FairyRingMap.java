@@ -23,6 +23,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.NodeCache;
 import net.runelite.api.Point;
 import net.runelite.api.SpritePixels;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.MenuOptionClicked;
@@ -353,6 +354,27 @@ public class FairyRingMap
 	 */
 	static final int ICON_POOL = 40;
 
+	/**
+	 * How many X widgets the clue step can use.
+	 * <p>
+	 * Fixed for the reason every pool here is. A single-spot clue needs one, a three-step cryptic
+	 * three; only a hot-cold clue needs more, and early on it offers more candidates than any pool
+	 * sensibly holds, in which case {@link ClueMarks} draws none rather than an arbitrary subset.
+	 */
+	static final int CLUE_POOL = 32;
+
+	/** The X's box. Bold 12 draws the glyph about eight pixels square, centred in this. */
+	private static final int CLUE_MARK_SIZE = 12;
+
+	/** Two clue spots closer than this, in map pixels on both axes, draw as one X. */
+	private static final int CLUE_MERGE = 8;
+
+	/**
+	 * The X's colour. Not a marker state, so it sits outside the palette the colour audit guards:
+	 * nothing else on the map is yellow, which is what lets a single glyph find the eye.
+	 */
+	private static final int CLUE_COLOUR = 0xFFFF00;
+
 	/** Index of the sheet inside the inset layer. The pool follows it; the centre marker ends it. */
 	private static final int INSET_SLOT_SHEET = 0;
 	private static final int INSET_SLOT_FIRST_ICON = 1;
@@ -434,6 +456,7 @@ public class FairyRingMap
 	private final FairyRingMapConfig config;
 	private final FairyRingDefinitions definitions;
 	private final MapProjection projection;
+	private final ClueLocations clueLocations;
 
 	private final List<RingIcon> icons = new ArrayList<>();
 	/**
@@ -543,6 +566,9 @@ public class FairyRingMap
 	 */
 	private Widget[] codeLabels;
 
+	/** The clue step's X pool, re-acquired by index on every layout like the labels above. */
+	private Widget[] clueMarks;
+
 	/**
 	 * The plugin's own marker sprites, captured before the first recolour replaces them, so a
 	 * colour set back to its default restores the original artwork.
@@ -593,11 +619,12 @@ public class FairyRingMap
 
 	@Inject
 	private FairyRingMap(Client client, ClientThread clientThread, FairyRingMapConfig config,
-		DefinitionLoader definitionLoader)
+		DefinitionLoader definitionLoader, ClueLocations clueLocations)
 	{
 		this.client = client;
 		this.clientThread = clientThread;
 		this.config = config;
+		this.clueLocations = clueLocations;
 		this.definitions = definitionLoader.load(
 			FairyRingDefinitions.class, "/FairyRingMap/FairyRingDefinitions.json");
 		this.projection = MapProjection.of(definitions.getMap());
@@ -1036,9 +1063,19 @@ public class FairyRingMap
 		return SLOT_FIRST_ICON + definitions.getRings().size();
 	}
 
-	private int slotInsetBorder()
+	/**
+	 * The clue step's X pool, after the labels and before the inset: an X draws over the markers,
+	 * because it is what the player is looking for, and under the close-up, which is drawn over
+	 * everything.
+	 */
+	private int slotFirstClue()
 	{
 		return slotFirstLabel() + definitions.getRings().size();
+	}
+
+	private int slotInsetBorder()
+	{
+		return slotFirstClue() + CLUE_POOL;
 	}
 
 	private int slotInset()
@@ -1091,6 +1128,15 @@ public class FairyRingMap
 			Widget label = text(layer, "", 1);
 			label.setFontId(FontID.PLAIN_11);
 			label.setHidden(true);
+		}
+
+		// The X never changes, only where it is, so its text and colour are fixed here.
+		for (int i = 0; i < CLUE_POOL; i++)
+		{
+			Widget mark = text(layer, String.format("<col=%06x>X</col>", CLUE_COLOUR), 1);
+			mark.setFontId(FontID.BOLD_12);
+			mark.setTextColor(CLUE_COLOUR);
+			mark.setHidden(true);
 		}
 
 		// The inset is made after the markers so it draws over them.
@@ -1203,6 +1249,14 @@ public class FairyRingMap
 			codeLabels[i] = slots[slotFirstLabel() + i];
 		}
 		refreshCodeLabels();
+
+		clueMarks = new Widget[CLUE_POOL];
+		for (int i = 0; i < CLUE_POOL; i++)
+		{
+			clueMarks[i] = slots[slotFirstClue() + i];
+		}
+		refreshClueMarks();
+
 		layoutToggle(slots, close);
 		layoutCloseFacade(close);
 
@@ -2111,6 +2165,7 @@ public class FairyRingMap
 		// back. Every other widget above is already driven from this one place; the labels were
 		// simply missing from the list.
 		refreshCodeLabels();
+		refreshClueMarks();
 
 		// The travel log is deliberately left alone. It was hidden here when the map was going to
 		// replace it; the map ended up over the dials instead, which do not overlap the log panel
@@ -2729,6 +2784,55 @@ public class FairyRingMap
 		// interaction, such as hovering a travel log row, happens to dirty the interface.
 		// Revalidating the layer they live in is the one lever left that covers all of them at
 		// once. Cheap, and it runs at most twice a second.
+		if (container != null)
+		{
+			container.revalidate();
+		}
+	}
+
+	/**
+	 * Put an X wherever the active clue step is.
+	 * <p>
+	 * Read on every layout and every show, not on the log's rebuild: the step cannot change while
+	 * the travel log is open, because solving one needs the player's hands elsewhere, and a new
+	 * opening is a new layout. The clue itself is read through {@link ClueLocations}; what of it
+	 * can be drawn is {@link ClueMarks}'s decision.
+	 */
+	private void refreshClueMarks()
+	{
+		if (clueMarks == null)
+		{
+			return;
+		}
+
+		for (Widget mark : clueMarks)
+		{
+			mark.setHidden(true);
+		}
+
+		if (!mapShown || !config.showClueLocation())
+		{
+			return;
+		}
+
+		List<java.awt.Point> tiles = new ArrayList<>();
+		for (WorldPoint point : clueLocations.current())
+		{
+			tiles.add(new java.awt.Point(point.getX(), point.getY()));
+		}
+		List<java.awt.Point> marks = ClueMarks.place(tiles, projection, CLUE_MERGE, CLUE_POOL);
+		log.debug("clue step: {} places, {} marks drawn", tiles.size(), marks.size());
+
+		for (int i = 0; i < marks.size(); i++)
+		{
+			java.awt.Point mark = marks.get(i);
+			box(clueMarks[i],
+				mapOriginX + mark.x - CLUE_MARK_SIZE / 2,
+				mapOriginY + mark.y - CLUE_MARK_SIZE / 2,
+				CLUE_MARK_SIZE, CLUE_MARK_SIZE);
+			clueMarks[i].setHidden(false);
+		}
+
 		if (container != null)
 		{
 			container.revalidate();

@@ -12,13 +12,18 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.cluescrolls.ClueScrollPlugin;
 
 @PluginDescriptor(
 	name = "Fairy Ring Map",
 	description = "Pick a fairy ring destination off a map of Gielinor instead of by its code",
 	tags = {"fairy", "ring", "teleport", "travel", "map", "transport"}
 )
+// For the active clue step. This orders loading and makes ClueScrollService injectable; it does
+// not switch the Clue Scroll plugin on. See ClueLocations.
+@PluginDependency(ClueScrollPlugin.class)
 public class FairyRingMapPlugin extends Plugin
 {
 	private static final String SPRITE_DEFINITIONS = "/FairyRingMap/SpriteDefinitions.json";

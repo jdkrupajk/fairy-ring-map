@@ -14,6 +14,8 @@ it, the way you always would.
    moved to the top and highlighted.
 3. Click that entry to travel. That click is the game's own, on the game's own row.
 4. `Map` / `List` in the title bar switches back and forth.
+5. With a clue scroll on the go, a yellow **X** marks where the current step is, as RuneLite's own
+   Clue Scroll plugin places it — so you can pick the ring nearest the dig. Needs that plugin on.
 
 Thirteen destinations — the dungeons, the "other realms" and your player-owned house — are not on
 a surface map at all, so they sit in a labelled row underneath it.
@@ -56,6 +58,7 @@ search box or the game's filter at all.
 | Open on the map | on | Show the map as soon as the travel log opens |
 | Show off-map destinations | on | The row of dungeons and other realms under the map |
 | Hide locked destinations | off | Leave rings you cannot use off the map entirely |
+| Mark the clue step | on | A yellow X where the active clue step is |
 
 ## Where the map and the data come from
 

@@ -167,6 +167,18 @@ public interface FairyRingMapConfig extends Config
 		return new Color(0x6A6A6A);
 	}
 
+	@ConfigItem(
+		keyName = "showClueLocation",
+		name = "Mark the clue step",
+		description = "Draw a yellow X where the active clue step is, as RuneLite's Clue Scroll plugin "
+			+ "places it. Needs that plugin switched on",
+		position = 13
+	)
+	default boolean showClueLocation()
+	{
+		return true;
+	}
+
 	// ---------------------------------------------------------------- the close-up's icons
 
 	String ICONS_SECTION = "icons";

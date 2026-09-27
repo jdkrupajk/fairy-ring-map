@@ -786,6 +786,47 @@ south of Karamja. The surface solver's bottom bound is pulled up by the band hei
 cheaper and harder to get wrong than adding a pseudo-obstacle: a bound cannot be forgotten in one
 branch.
 
+## The clue step is an X, read from the Clue Scroll plugin's service
+
+Added 2026-09-27. With a clue on the go, a yellow bold **X** marks every place the current step
+could be. Verified in game on a fixed-location step: the X lands on the spot, and markers under
+it stay hoverable and clickable. Setting `Mark the clue step`, on by default. Off by default was
+rejected: the X only appears when there is a clue with a place, so it is silent otherwise.
+
+**Only an X, not the nearest ring as well.** A yellow outline around the nearest unlocked surface
+ring was designed alongside the X and dropped by Joe before it was built, 2026-09-27. Worth
+knowing if it comes back: "nearest" was going to be straight-line tiles, which ignores water,
+walls and the walk from a ring's exit.
+
+**How the clue is read** is decided and has its own note in the vault (*A Hub Plugin Reads Core
+Clue Data Through ClueScrollService, Not The Plugin Instance*):
+`@PluginDependency(ClueScrollPlugin.class)` and an injected `ClueScrollService`, never the plugin
+instance, because RuneLite 1.13 exposes only what a plugin's public module binds.
+`getLocations(null)`, because a service consumer has no plugin to pass; the two clue variants
+that dereference it throw and are skipped. `ClueLocations` is the **only** class that touches a
+Clue Scroll type, so if the dependency ever has to go, it goes in one file.
+
+**What of it is drawn** is `ClueMarks`, pure and tested:
+
+1. Underground points (`y >= 6400`) fold onto the surface above them.
+2. What is still off the sprite is not drawn. An X clamped to the edge would be a lie.
+3. Points closer than 8 px on both axes merge, keeping the north-westmost, so the survivor does
+   not depend on the order the clue handed them over.
+4. More marks than the pool of 32 draws **none**. Only a hot-cold clue gets there: before the
+   first reading it returns one point (the NPC), afterwards every candidate still possible, up to
+   141. A handful of those would read as the whole answer.
+
+The pool sits **after the code labels and before the inset**: an X is drawn over markers because
+it is what the player is looking for, and under the hover close-up because that covers
+everything. The inset's slots are computed, not constants, so inserting the pool there moved them
+without touching anything else; the child count changed, which `adopt` handles as it always has.
+
+The clue is read on layout and on show, not on script 8080. A step cannot change while the travel
+log is open, and every opening is a layout.
+
+Not measured yet: the X count through a real hot-cold clue. `clue step: N places, M marks drawn`
+is logged at debug on each read for exactly that.
+
 ## Four things the client does that cost a session to find
 
 All four were established by measurement after reasoning failed, and all four are invisible —
@@ -979,8 +1020,10 @@ tell users to report layout oddities with the other plugin's name.
 | `CodeLabelSize.java` | The three usable fonts, each carrying the box the solver reserves. |
 | `SpriteRecolour.java` | Rebuilds a marker's pixels in a new colour. Pure, 5 tests pinned to the shipped PNGs. |
 | `RingState.java` | Unlocked, favourited, and which favourite row holds what — with each fact's lifetime. Pure, 8 tests. |
+| `ClueLocations.java` | The active clue step's places, through `ClueScrollService`. The only file touching Clue Scroll types. |
+| `ClueMarks.java` | Which of those places get an X, and where. Pure, 9 tests. |
 
-62 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
+71 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
 
 Three things worth remembering, because they are not obvious from the code:
 
