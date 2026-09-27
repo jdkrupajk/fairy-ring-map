@@ -827,6 +827,19 @@ log is open, and every opening is a layout.
 Not measured yet: the X count through a real hot-cold clue. `clue step: N places, M marks drawn`
 is logged at debug on each read for exactly that.
 
+## Sprite ids share one table with every other plugin
+
+Found 2026-09-27 on a production client. `client.getSpriteOverrides()` is a single map for the
+whole client, with no namespacing and no registry, so two plugins that pick the same negative id
+draw each other's pictures and nothing errors. Ours were -19401 to -19407, inside Teleport Maps'
+-19000 to -19800: with both installed, the map drew its Xeric's talisman icon stretched to
+508 x 312 and plain markers drew its outlined icon, and our recolours were overwriting its sprites
+in turn. The dev client never showed it because Teleport Maps was not enabled there.
+
+Now **-29401 to -29407**. Checked against every installed Hub plugin's sprite JSON and, per id, a
+GitHub code search for Java sources mentioning `getSpriteId` - 0 hits for all seven. That bounds
+the risk; it cannot rule it out. Verified in game with Teleport Maps on.
+
 ## Four things the client does that cost a session to find
 
 All four were established by measurement after reasoning failed, and all four are invisible —

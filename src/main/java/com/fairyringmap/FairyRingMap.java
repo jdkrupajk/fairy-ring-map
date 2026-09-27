@@ -115,13 +115,22 @@ import net.runelite.client.util.ImageUtil;
 @Singleton
 public class FairyRingMap
 {
-	/** Sprite ids registered by the plugin. Negative so they cannot collide with the game's. */
-	static final int SPRITE_MAP = -19401;
-	static final int SPRITE_RING = -19402;
-	static final int SPRITE_RING_HOVER = -19403;
-	static final int SPRITE_RING_SELECTED = -19404;
-	static final int SPRITE_RING_LOCKED = -19405;
-	static final int SPRITE_RING_FAVE = -19406;
+	/**
+	 * Sprite ids registered by the plugin. Negative so they cannot collide with the game's.
+	 * <p>
+	 * <b>Not with another plugin's, either - and nothing enforces that.</b> The override table is one
+	 * flat map shared by every plugin, so two that pick the same id silently draw each other's
+	 * pictures, whichever registers last winning. These were -19401 to -19407 until 2026-09-27,
+	 * inside Teleport Maps' -19000 to -19800: with both installed, the map drew Xeric's talisman
+	 * stretched to 508 x 312 and plain markers drew its outlined icon. Before moving these, check
+	 * the new block against the Hub's plugins.
+	 */
+	static final int SPRITE_MAP = -29401;
+	static final int SPRITE_RING = -29402;
+	static final int SPRITE_RING_HOVER = -29403;
+	static final int SPRITE_RING_SELECTED = -29404;
+	static final int SPRITE_RING_LOCKED = -29405;
+	static final int SPRITE_RING_FAVE = -29406;
 	/**
 	 * The pre-rendered close-ups, 54 of them tiled 9 x 6 into one 684 x 348 sheet.
 	 * <p>
@@ -129,7 +138,7 @@ public class FairyRingMap
 	 * table is a flat map: 54 entries would be 54 registrations, 54 decodes and 54 lookups to
 	 * achieve exactly what a negative offset already achieves for free.
 	 */
-	static final int SPRITE_INSET_SHEET = -19407;
+	static final int SPRITE_INSET_SHEET = -29407;
 
 	private static final int ICON_SIZE = 11;
 	/** Width reserved for the "Not on the map" caption sharing a line with the strip's icons. */
