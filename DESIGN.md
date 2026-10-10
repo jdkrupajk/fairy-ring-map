@@ -491,6 +491,7 @@ matched by code or by wildcard. Rather than chase them, the rule that dissolves 
 **A search and a map selection are two answers to the same question, and the search wins.** While
 the search box is non-empty the plugin does not filter at all, leaves the list exactly as the game
 built it, and greys out every marker the search excluded. The map becomes a picture of the search.
+(Since 2026-09-27 those markers are hidden rather than greyed; see below.)
 
 Fixing only the first fault would have made this worse in a way that looks right: with the
 favourites read corrected, the map would show 55 usable markers beside a log narrowed to three
@@ -500,6 +501,11 @@ rows, with nothing on screen saying why.
 brings the selection's filter back on the next rebuild instead of silently losing it. Selecting a
 marker during a search records the selection and colours it but does not filter, for the same
 reason.
+
+**While the search is in use, locked and searched-out markers are hidden, not greyed**, and so are
+their codes, whatever `Hide locked destinations` says (`RingIcon.hiddenBySearch`). Added
+2026-09-27 and verified in game 2026-10-10. Joe chose this over applying it only with that setting
+on. Clearing the search box brings them all back.
 
 The search string is read from `VarClientID.FAIRYRINGS_SEARCHSTRING` and never written. Writing it
 is what would need `client.runScript` to make the list follow, and that is the API the Hub gates —
@@ -827,6 +833,40 @@ log is open, and every opening is a layout.
 Not measured yet: the X count through a real hot-cold clue. `clue step: N places, M marks drawn`
 is logged at debug on each read for exactly that.
 
+### Colour and size are settings
+
+Added 2026-09-27 and verified in game 2026-10-10. `Clue X colour` takes an alpha, default yellow
+`#FFFF00`. `Clue X size` is a font choice, for the same reason the codes' size is: widget text has
+no point size. Each `ClueMarkSize` carries its font and its glyph's measured size. Fonts are sprite
+archives in the cache, one frame per character code, and `cache-tools` `GlyphSize` reads the X out
+of them:
+
+| Size | Font | X glyph |
+|---|---|---|
+| Small | `BOLD_12` | 6 x 10 |
+| **Medium** (default) | `BARBARIAN` | 11 x 11 |
+| Large | `QUILL_MEDIUM` | 16 x 18 |
+| Huge | `QUILL_CAPS_LARGE` | 31 x 34 |
+
+The widget box is the glyph's canvas, so every size centres on its place, checked in game for all
+four. The merge distance is glyph width + 2, so a bigger X absorbs more nearby spots into one.
+`VERDANA_13_BOLD` is not offered, because its X is 8 x 9, smaller than `BOLD_12`'s. **All four
+constants are permanent once released.**
+
+### Open on the clue's ring
+
+`Open on the clue's ring`, **off by default**. When the clue step is a `FairyRingClue`, whose text is
+the code plus a map reference (`A I R 2 3 3 1`), the log opens already narrowed to that row, as if
+it had been picked on the map. `ClueLocations.fairyRingCode()` reads the code; it is the only place
+that knows the clue type. Cryptic, cipher and map clues mention fairy rings only in RuneLite's
+solution text, not in the step itself, so they are left out. The rule is Joe's: the code has to be
+called out in the clue step.
+
+It runs from script 8080, not on open, because the server fills the rows after the interface
+loads and `select()` refuses an empty row. It applies once per opening. Show map, Hide map or
+picking another ring clears it, and it is not applied again until the log is reopened. Otherwise
+the player's own choice would be overridden on every rebuild.
+
 ## Sprite ids share one table with every other plugin
 
 Found 2026-09-27 on a production client. `client.getSpriteOverrides()` is a single map for the
@@ -911,9 +951,12 @@ so sharing a base would change its shape as well as its colour.
 hand-drawn and the others were generated from it, so its soft edge sits fractionally off the ramp;
 there is no reason to replace an artist's pixels with a reconstruction of them.
 
-A code dims to grey when its ring is locked or excluded by the search, whatever the colour
-settings say. That is not a colour choice — it is the label agreeing with its marker about whether
-the ring can be reached.
+A code whose marker is drawn locked takes `Locked code colour` (default `#8F8F8F`, the grey that
+used to be hard-coded). That covers locked rings and rings the log's search excludes, which is the
+same test `baseSprite` makes. With `Codes match ring colour` on, it takes the **locked ring**
+colour instead. Until 2026-09-27 this grey could not be configured, by a deliberate rule. Joe asked
+for it to be configurable. The rule's real purpose survives the change: the label still agrees with
+its marker about whether the ring can be reached. Only the shade became a choice.
 
 ### The sprites are trimmed to a circle
 
@@ -1035,8 +1078,9 @@ tell users to report layout oddities with the other plugin's name.
 | `RingState.java` | Unlocked, favourited, and which favourite row holds what — with each fact's lifetime. Pure, 8 tests. |
 | `ClueLocations.java` | The active clue step's places, through `ClueScrollService`. The only file touching Clue Scroll types. |
 | `ClueMarks.java` | Which of those places get an X, and where. Pure, 9 tests. |
+| `ClueMarkSize.java` | The four X sizes, each a font carrying its measured glyph box. |
 
-71 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
+75 tests green. `gradlew.bat build` clean. The jar carries no `META-INF/services` entry.
 
 Three things worth remembering, because they are not obvious from the code:
 

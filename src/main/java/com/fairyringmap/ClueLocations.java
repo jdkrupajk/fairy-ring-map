@@ -8,12 +8,14 @@ package com.fairyringmap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.cluescrolls.ClueScrollService;
 import net.runelite.client.plugins.cluescrolls.clues.ClueScroll;
+import net.runelite.client.plugins.cluescrolls.clues.FairyRingClue;
 import net.runelite.client.plugins.cluescrolls.clues.LocationClueScroll;
 import net.runelite.client.plugins.cluescrolls.clues.LocationsClueScroll;
 
@@ -41,6 +43,9 @@ import net.runelite.client.plugins.cluescrolls.clues.LocationsClueScroll;
 @Singleton
 class ClueLocations
 {
+	/** A fairy ring code: dial one A-D, dial two I-L, dial three P-S. */
+	private static final Pattern CODE = Pattern.compile("[A-D][I-L][P-S]");
+
 	private final ClueScrollService clueScrollService;
 
 	@Inject
@@ -93,5 +98,35 @@ class ClueLocations
 			}
 		}
 		return found;
+	}
+
+	/**
+	 * The code the active clue step names, or {@code null} when it names none.
+	 * <p>
+	 * Only a fairy ring clue does. Its whole text is the code and a map reference, such as
+	 * {@code "A I R 2 3 3 1"}, and "travel to that ring" is the entire step. Cryptic, cipher and
+	 * map clues mention fairy rings only in the Clue Scroll plugin's own solution text, which is a
+	 * hint RuneLite wrote rather than something the clue says, so they are deliberately not read.
+	 */
+	String fairyRingCode()
+	{
+		ClueScroll clue = clueScrollService.getClue();
+		return clue instanceof FairyRingClue ? codeFrom(((FairyRingClue) clue).getText()) : null;
+	}
+
+	/** The first three letters of a fairy ring clue's text, if they form a code. */
+	static String codeFrom(String clueText)
+	{
+		if (clueText == null)
+		{
+			return null;
+		}
+		String letters = clueText.replaceAll("\\s", "");
+		if (letters.length() < 3)
+		{
+			return null;
+		}
+		String code = letters.substring(0, 3).toUpperCase();
+		return CODE.matcher(code).matches() ? code : null;
 	}
 }

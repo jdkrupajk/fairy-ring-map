@@ -14,7 +14,7 @@ it, the way you always would.
    moved to the top and highlighted.
 3. Click that entry to travel. That click is the game's own, on the game's own row.
 4. `Map` / `List` in the title bar switches back and forth.
-5. With a clue scroll on the go, a yellow **X** marks where the current step is, as RuneLite's own
+5. With a clue scroll on the go, an **X** (yellow unless you change it) marks where the current step is, as RuneLite's own
    Clue Scroll plugin places it — so you can pick the ring nearest the dig. Needs that plugin on.
 
 Thirteen destinations — the dungeons, the "other realms" and your player-owned house — are not on
@@ -57,8 +57,22 @@ search box or the game's filter at all.
 |---|---|---|
 | Open on the map | on | Show the map as soon as the travel log opens |
 | Show off-map destinations | on | The row of dungeons and other realms under the map |
+| Show a closer look on hover | on | A close-up of the destination under the cursor |
 | Hide locked destinations | off | Leave rings you cannot use off the map entirely |
-| Mark the clue step | on | A yellow X where the active clue step is |
+| Show codes on the map | off | Each ring's code beside its marker: off, favourites only, or all |
+| Code size | Small | Which of the game's fonts the codes use |
+| Code colour / Favourite code colour | white | Colours of the codes |
+| Locked code colour | grey | Codes of rings you cannot use yet, or that the log's search leaves out |
+| Codes match ring colour | off | Draw each code in its ring's colour instead |
+| Ring colour / Favourite ring colour / Locked ring colour | teal / red / grey | Marker colours |
+| Mark the clue step | on | An X where the active clue step is |
+| Clue X colour | yellow | Colour of that X |
+| Clue X size | Medium | Small, Medium, Large or Huge |
+| Open on the clue's ring | off | On a fairy ring clue, open the log already narrowed to that code |
+| Icons in the close-up | all, 5 at most | Which map icons the close-up draws, how many, how far apart and how big |
+
+While you type in the travel log's search box, rings that are locked or that the search leaves out
+are hidden from the map. Clear the search and they come back.
 
 ## Where the map and the data come from
 
@@ -85,8 +99,9 @@ and it is worth regenerating if the map box ever moves.
 gradlew.bat build
 ```
 
-27 unit tests cover the parts that can be tested without a client: the world-to-pixel projection,
-the code and availability parsing, and the shipped definitions file. Everything else needs the game.
+75 unit tests cover the parts that can be tested without a client: the world-to-pixel projection,
+the code and availability parsing, label placement, marker recolouring, the clue marks, and the
+shipped definitions file. Everything else needs the game.
 
 ## Licence
 

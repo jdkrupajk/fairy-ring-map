@@ -96,7 +96,7 @@ public interface FairyRingMapConfig extends Config
 		keyName = "codeLabelColour",
 		name = "Code colour",
 		description = "Colour of a code on the map. White reads over both sea and forest; a code "
-			+ "on a locked or searched-out ring dims to grey whatever this is set to",
+			+ "on a locked or searched-out ring takes the locked code colour instead",
 		position = 7
 	)
 	default Color codeLabelColour()
@@ -116,12 +116,25 @@ public interface FairyRingMapConfig extends Config
 		return Color.WHITE;
 	}
 
+	@Alpha
+	@ConfigItem(
+		keyName = "codeLabelLockedColour",
+		name = "Locked code colour",
+		description = "Colour of a code whose ring this account cannot use yet, or which the travel "
+			+ "log's search has left out - the same rings whose markers are drawn locked",
+		position = 9
+	)
+	default Color codeLabelLockedColour()
+	{
+		return new Color(0x8F8F8F);
+	}
+
 	@ConfigItem(
 		keyName = "codeLabelsMatchRings",
 		name = "Codes match ring colour",
-		description = "Draw each code in its own ring's colour instead of the two colours above. "
-			+ "A locked or searched-out ring still dims to grey either way",
-		position = 9
+		description = "Draw each code in its own ring's colour instead of the colours above, "
+			+ "including the locked ring colour for a locked or searched-out ring",
+		position = 10
 	)
 	default boolean codeLabelsMatchRings()
 	{
@@ -134,7 +147,7 @@ public interface FairyRingMapConfig extends Config
 		name = "Ring colour",
 		description = "Colour of an ordinary unlocked marker. Note the map itself is busy: very "
 			+ "dark or low-contrast colours disappear against terrain",
-		position = 10
+		position = 11
 	)
 	default Color ringColour()
 	{
@@ -147,7 +160,7 @@ public interface FairyRingMapConfig extends Config
 		name = "Favourite ring colour",
 		description = "Colour of a favourited marker. The default is the red of the travel log's "
 			+ "own favourite heart, so the map matches the list beside it",
-		position = 11
+		position = 12
 	)
 	default Color ringFavouriteColour()
 	{
@@ -158,9 +171,9 @@ public interface FairyRingMapConfig extends Config
 	@ConfigItem(
 		keyName = "ringLockedColour",
 		name = "Locked ring colour",
-		description = "Colour of a destination this account cannot use yet. Its code dims to grey "
-			+ "regardless, so the map still says unreachable if this is set to something bright",
-		position = 12
+		description = "Colour of a destination this account cannot use yet, or which the travel "
+			+ "log's search has left out. With codes matching rings, its code takes this colour too",
+		position = 13
 	)
 	default Color ringLockedColour()
 	{
@@ -170,13 +183,50 @@ public interface FairyRingMapConfig extends Config
 	@ConfigItem(
 		keyName = "showClueLocation",
 		name = "Mark the clue step",
-		description = "Draw a yellow X where the active clue step is, as RuneLite's Clue Scroll plugin "
+		description = "Draw an X where the active clue step is, as RuneLite's Clue Scroll plugin "
 			+ "places it. Needs that plugin switched on",
-		position = 13
+		position = 14
 	)
 	default boolean showClueLocation()
 	{
 		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "clueMarkColour",
+		name = "Clue X colour",
+		description = "Colour of the X marking the clue step",
+		position = 15
+	)
+	default Color clueMarkColour()
+	{
+		return new Color(0xFFFF00);
+	}
+
+	@ConfigItem(
+		keyName = "clueMarkSize",
+		name = "Clue X size",
+		description = "Which of the game's fonts the X is drawn in. Nearby clue spots share one X, "
+			+ "so a bigger X can mean fewer of them",
+		position = 16
+	)
+	default ClueMarkSize clueMarkSize()
+	{
+		return ClueMarkSize.MEDIUM;
+	}
+
+	@ConfigItem(
+		keyName = "filterToClueRing",
+		name = "Open on the clue's ring",
+		description = "When the clue step is a fairy ring clue, open the travel log already narrowed "
+			+ "to that code's destination, as if it had been picked on the map. Show map, Hide map "
+			+ "or picking another ring clears it",
+		position = 17
+	)
+	default boolean filterToClueRing()
+	{
+		return false;
 	}
 
 	// ---------------------------------------------------------------- the close-up's icons

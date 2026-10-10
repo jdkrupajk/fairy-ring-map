@@ -172,12 +172,6 @@ public class FairyRingMap
 	/** Locked destinations keep their tooltip; the colour is what says they are unreachable. */
 	private static final String LOCKED_COLOUR_TAG = "<col=8f8f8f>";
 
-	/**
-	 * A ring that is locked, or that the log's search has excluded, dims its code to the same grey
-	 * as {@link #LOCKED_COLOUR_TAG}. This is not configurable on purpose: it is not a colour
-	 * choice, it is the label agreeing with its marker about whether the ring is reachable.
-	 */
-	private static final Color CODE_COLOUR_DIM = new Color(0x8F8F8F);
 	/** The selection orange as a {@link Color}, for when codes follow their ring's colour. */
 	private static final Color SELECTED_CODE_COLOUR = new Color(HIGHLIGHT_COLOUR);
 
@@ -371,18 +365,6 @@ public class FairyRingMap
 	 * sensibly holds, in which case {@link ClueMarks} draws none rather than an arbitrary subset.
 	 */
 	static final int CLUE_POOL = 32;
-
-	/** The X's box. Bold 12 draws the glyph about eight pixels square, centred in this. */
-	private static final int CLUE_MARK_SIZE = 12;
-
-	/** Two clue spots closer than this, in map pixels on both axes, draw as one X. */
-	private static final int CLUE_MERGE = 8;
-
-	/**
-	 * The X's colour. Not a marker state, so it sits outside the palette the colour audit guards:
-	 * nothing else on the map is yellow, which is what lets a single glyph find the eye.
-	 */
-	private static final int CLUE_COLOUR = 0xFFFF00;
 
 	/** Index of the sheet inside the inset layer. The pool follows it; the centre marker ends it. */
 	private static final int INSET_SLOT_SHEET = 0;
@@ -579,6 +561,13 @@ public class FairyRingMap
 	private Widget[] clueMarks;
 
 	/**
+	 * Whether this opening has already narrowed the log to the ring a fairy ring clue names. Set
+	 * once it succeeds and cleared only by {@link #reset}, so clearing the filter by hand is not
+	 * undone by the game's next rebuild of the list.
+	 */
+	private boolean clueRingApplied;
+
+	/**
 	 * The plugin's own marker sprites, captured before the first recolour replaces them, so a
 	 * colour set back to its default restores the original artwork.
 	 */
@@ -694,6 +683,7 @@ public class FairyRingMap
 		if (container != null && !icons.isEmpty())
 		{
 			refreshAvailability();
+			applyClueRing();
 		}
 
 		// The search owns the list while it is in use — see searchActive(). filterActive is left
@@ -1139,13 +1129,10 @@ public class FairyRingMap
 			label.setHidden(true);
 		}
 
-		// The X never changes, only where it is, so its text and colour are fixed here.
+		// Colour, font and size are settings, so they are written on every refresh, not here.
 		for (int i = 0; i < CLUE_POOL; i++)
 		{
-			Widget mark = text(layer, String.format("<col=%06x>X</col>", CLUE_COLOUR), 1);
-			mark.setFontId(FontID.BOLD_12);
-			mark.setTextColor(CLUE_COLOUR);
-			mark.setHidden(true);
+			text(layer, "", 1).setHidden(true);
 		}
 
 		// The inset is made after the markers so it draws over them.
@@ -2108,6 +2095,32 @@ public class FairyRingMap
 	}
 
 	/**
+	 * Narrow the log to the ring the clue step names, as if it had been picked on the map.
+	 * <p>
+	 * Run from the log's rebuild rather than on opening, for the reason availability is: the server
+	 * fills the rows in after the interface loads, and {@link #select} refuses a ring whose row is
+	 * still empty. So an attempt that finds the row empty - not sent yet, or genuinely locked -
+	 * simply waits for the next rebuild. Nothing is done while the player already has a selection,
+	 * including one carried across a favourite being toggled.
+	 */
+	private void applyClueRing()
+	{
+		if (clueRingApplied || selected != null || !config.filterToClueRing())
+		{
+			return;
+		}
+		String code = clueLocations.fairyRingCode();
+		RingDefinition ring = code == null ? null : ringFor(code);
+		if (ring == null || !readUnlocked(code))
+		{
+			return;
+		}
+		clueRingApplied = true;
+		log.debug("clue step names {}; narrowing the log to it", code);
+		select(ring);
+	}
+
+	/**
 	 * The Show map / Hide map button. Either direction drops the selection and puts the log back.
 	 * <p>
 	 * Symmetric on purpose. The button is the one control that means "I am done with what is on
@@ -2192,12 +2205,14 @@ public class FairyRingMap
 	}
 
 	/**
-	 * Three independent reasons a marker is not drawn: the map is down, the player asked for locked
-	 * rings to be left off, or it belongs to the off-map strip and the strip is switched off.
+	 * Four independent reasons a marker is not drawn: the map is down, the player asked for locked
+	 * rings to be left off, the log's search is in use and the ring is not one it can offer, or it
+	 * belongs to the off-map strip and the strip is switched off.
 	 */
 	private boolean iconHidden(RingIcon icon)
 	{
-		return !mapShown || icon.hiddenByConfig || (!icon.ring.isOnSurface() && !stripShown);
+		return !mapShown || icon.hiddenByConfig || icon.hiddenBySearch
+			|| (!icon.ring.isOnSurface() && !stripShown);
 	}
 
 	/**
@@ -2462,6 +2477,10 @@ public class FairyRingMap
 		{
 			boolean unlocked = state.isUnlocked(icon.ring.getCode());
 			icon.hiddenByConfig = !unlocked && config.hideUnavailable();
+			// While the search is in use the map is a picture of it, so a ring it cannot offer -
+			// locked, or not matching - is left off rather than greyed, whatever the setting says.
+			// Chosen by Joe 2026-09-27, over applying it only with "Hide locked destinations" on.
+			icon.hiddenBySearch = searching && !reachable(icon);
 			icon.widget.setHidden(iconHidden(icon));
 			icon.widget.setSpriteId(spriteFor(icon));
 
@@ -2829,17 +2848,27 @@ public class FairyRingMap
 		{
 			tiles.add(new java.awt.Point(point.getX(), point.getY()));
 		}
-		List<java.awt.Point> marks = ClueMarks.place(tiles, projection, CLUE_MERGE, CLUE_POOL);
+		ClueMarkSize size = config.clueMarkSize();
+		List<java.awt.Point> marks = ClueMarks.place(
+			tiles, projection, size.getMergeWithin(), CLUE_POOL);
 		log.debug("clue step: {} places, {} marks drawn", tiles.size(), marks.size());
 
+		// Colour by tag and transparency by opacity, for the reasons the code labels give.
+		Color colour = config.clueMarkColour();
+		String text = String.format("<col=%06x>X</col>", colour.getRGB() & 0xFFFFFF);
 		for (int i = 0; i < marks.size(); i++)
 		{
-			java.awt.Point mark = marks.get(i);
-			box(clueMarks[i],
-				mapOriginX + mark.x - CLUE_MARK_SIZE / 2,
-				mapOriginY + mark.y - CLUE_MARK_SIZE / 2,
-				CLUE_MARK_SIZE, CLUE_MARK_SIZE);
-			clueMarks[i].setHidden(false);
+			java.awt.Point at = marks.get(i);
+			Widget mark = clueMarks[i];
+			mark.setText(text);
+			mark.setTextColor(colour.getRGB() & 0xFFFFFF);
+			mark.setOpacity(255 - colour.getAlpha());
+			mark.setFontId(size.getFontId());
+			box(mark,
+				mapOriginX + at.x - size.getWidth() / 2,
+				mapOriginY + at.y - size.getHeight() / 2,
+				size.getWidth(), size.getHeight());
+			mark.setHidden(false);
 		}
 
 		if (container != null)
@@ -2861,12 +2890,14 @@ public class FairyRingMap
 	 */
 	private Color codeColourFor(RingIcon icon)
 	{
-		// Dim wins outright, including over "match ring colour". It is not a colour preference —
-		// it is the label agreeing with its marker about whether the ring can be reached, and a
-		// bright code over a greyed marker reads as a bug whatever the palette.
+		// Unreachable is decided first, by the same test that gives the marker its locked sprite,
+		// so the code and its marker always agree about whether the ring can be reached. Only the
+		// colour that says so is a setting: its own, or the locked ring's when codes match rings.
 		if (!reachable(icon))
 		{
-			return CODE_COLOUR_DIM;
+			return config.codeLabelsMatchRings()
+				? config.ringLockedColour()
+				: config.codeLabelLockedColour();
 		}
 
 		boolean favourite = state.isFavourite(icon.ring.getCode());
@@ -3082,6 +3113,7 @@ public class FairyRingMap
 		selected = null;
 		hovered = null;
 		filterActive = false;
+		clueRingApplied = false;
 		blockLeft = null;
 		blockRight = null;
 		blockBelowClose = null;
@@ -3146,6 +3178,8 @@ public class FairyRingMap
 		private final RingDefinition ring;
 		private final Widget widget;
 		private boolean hiddenByConfig;
+		/** Left off because the log's search is in use and cannot offer this ring. */
+		private boolean hiddenBySearch;
 		/**
 		 * Whether the log's search box, if one is in use, left this destination's row on screen.
 		 * True when no search is running, so the ordinary case needs no special handling.
