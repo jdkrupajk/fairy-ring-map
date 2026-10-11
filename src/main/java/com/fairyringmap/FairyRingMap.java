@@ -8,11 +8,13 @@ package com.fairyringmap;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -448,6 +450,7 @@ public class FairyRingMap
 	private final FairyRingDefinitions definitions;
 	private final MapProjection projection;
 	private final ClueLocations clueLocations;
+	private final QuestTarget questTarget;
 
 	private final List<RingIcon> icons = new ArrayList<>();
 	/**
@@ -560,6 +563,12 @@ public class FairyRingMap
 	/** The clue step's X pool, re-acquired by index on every layout like the labels above. */
 	private Widget[] clueMarks;
 
+	/** The quest step's X. One, because there is one target; its own widget so it keeps its colour. */
+	private Widget questMark;
+
+	/** The quest target the X was last drawn for, so a new step redraws it while the log is open. */
+	private WorldPoint drawnQuestTarget;
+
 	/**
 	 * Whether this opening has already narrowed the log to the ring a fairy ring clue names. Set
 	 * once it succeeds and cleared only by {@link #reset}, so clearing the filter by hand is not
@@ -617,12 +626,13 @@ public class FairyRingMap
 
 	@Inject
 	private FairyRingMap(Client client, ClientThread clientThread, FairyRingMapConfig config,
-		DefinitionLoader definitionLoader, ClueLocations clueLocations)
+		DefinitionLoader definitionLoader, ClueLocations clueLocations, QuestTarget questTarget)
 	{
 		this.client = client;
 		this.clientThread = clientThread;
 		this.config = config;
 		this.clueLocations = clueLocations;
+		this.questTarget = questTarget;
 		this.definitions = definitionLoader.load(
 			FairyRingDefinitions.class, "/FairyRingMap/FairyRingDefinitions.json");
 		this.projection = MapProjection.of(definitions.getMap());
@@ -1072,9 +1082,15 @@ public class FairyRingMap
 		return slotFirstLabel() + definitions.getRings().size();
 	}
 
-	private int slotInsetBorder()
+	/** The quest step's X, straight after the clue pool and drawn over it. */
+	private int slotQuestMark()
 	{
 		return slotFirstClue() + CLUE_POOL;
+	}
+
+	private int slotInsetBorder()
+	{
+		return slotQuestMark() + 1;
 	}
 
 	private int slotInset()
@@ -1134,6 +1150,7 @@ public class FairyRingMap
 		{
 			text(layer, "", 1).setHidden(true);
 		}
+		text(layer, "", 1).setHidden(true);
 
 		// The inset is made after the markers so it draws over them.
 		Widget insetFrame = panel(layer, 0);
@@ -1251,6 +1268,7 @@ public class FairyRingMap
 		{
 			clueMarks[i] = slots[slotFirstClue() + i];
 		}
+		questMark = slots[slotQuestMark()];
 		refreshClueMarks();
 
 		layoutToggle(slots, close);
@@ -1981,6 +1999,13 @@ public class FairyRingMap
 		{
 			setHovered(null);
 			return;
+		}
+
+		// Unlike a clue step, a quest step can change with the log open: Quest Helper's sidebar is
+		// still clickable. One comparison a tick is the whole cost of noticing.
+		if (!Objects.equals(questTarget.current(), drawnQuestTarget))
+		{
+			refreshClueMarks();
 		}
 
 		// A right-click menu freezes the entries at the moment it opened, so they stop describing
@@ -2819,12 +2844,17 @@ public class FairyRingMap
 	}
 
 	/**
-	 * Put an X wherever the active clue step is.
+	 * Put an X wherever the active clue step is, and another where the quest step is.
 	 * <p>
-	 * Read on every layout and every show, not on the log's rebuild: the step cannot change while
+	 * Read on every layout and every show, not on the log's rebuild: a clue step cannot change while
 	 * the travel log is open, because solving one needs the player's hands elsewhere, and a new
-	 * opening is a new layout. The clue itself is read through {@link ClueLocations}; what of it
-	 * can be drawn is {@link ClueMarks}'s decision.
+	 * opening is a new layout. A quest step can, so {@link #onClientTick} also calls this when the
+	 * target moves. The clue is read through {@link ClueLocations} and the quest step through
+	 * {@link QuestTarget}; what of either can be drawn is {@link ClueMarks}'s decision.
+	 * <p>
+	 * The two are placed separately rather than as one list. Placed together, a quest step near a
+	 * clue spot would merge into the clue's X and lose its colour, which is the one thing that says
+	 * which is which.
 	 */
 	private void refreshClueMarks()
 	{
@@ -2833,48 +2863,73 @@ public class FairyRingMap
 			return;
 		}
 
+		WorldPoint quest = questTarget.current();
+		drawnQuestTarget = quest;
+
 		for (Widget mark : clueMarks)
 		{
 			mark.setHidden(true);
 		}
+		if (questMark != null)
+		{
+			questMark.setHidden(true);
+		}
 
-		if (!mapShown || !config.showClueLocation())
+		if (!mapShown)
 		{
 			return;
 		}
 
-		List<java.awt.Point> tiles = new ArrayList<>();
-		for (WorldPoint point : clueLocations.current())
-		{
-			tiles.add(new java.awt.Point(point.getX(), point.getY()));
-		}
 		ClueMarkSize size = config.clueMarkSize();
-		List<java.awt.Point> marks = ClueMarks.place(
-			tiles, projection, size.getMergeWithin(), CLUE_POOL);
-		log.debug("clue step: {} places, {} marks drawn", tiles.size(), marks.size());
 
-		// Colour by tag and transparency by opacity, for the reasons the code labels give.
-		Color colour = config.clueMarkColour();
-		String text = String.format("<col=%06x>X</col>", colour.getRGB() & 0xFFFFFF);
-		for (int i = 0; i < marks.size(); i++)
+		if (config.showClueLocation())
 		{
-			java.awt.Point at = marks.get(i);
-			Widget mark = clueMarks[i];
-			mark.setText(text);
-			mark.setTextColor(colour.getRGB() & 0xFFFFFF);
-			mark.setOpacity(255 - colour.getAlpha());
-			mark.setFontId(size.getFontId());
-			box(mark,
-				mapOriginX + at.x - size.getWidth() / 2,
-				mapOriginY + at.y - size.getHeight() / 2,
-				size.getWidth(), size.getHeight());
-			mark.setHidden(false);
+			List<java.awt.Point> tiles = new ArrayList<>();
+			for (WorldPoint point : clueLocations.current())
+			{
+				tiles.add(new java.awt.Point(point.getX(), point.getY()));
+			}
+			List<java.awt.Point> marks = ClueMarks.place(
+				tiles, projection, size.getMergeWithin(), CLUE_POOL);
+			log.debug("clue step: {} places, {} marks drawn", tiles.size(), marks.size());
+			for (int i = 0; i < marks.size(); i++)
+			{
+				drawMark(clueMarks[i], marks.get(i), config.clueMarkColour(), size);
+			}
+		}
+
+		if (config.showQuestTarget() && quest != null && questMark != null)
+		{
+			// Through the same rules as a clue spot: a dungeon folds onto the surface, and anything
+			// still off the map - another realm, or an instance coordinate - draws nothing.
+			List<java.awt.Point> marks = ClueMarks.place(
+				Collections.singletonList(new java.awt.Point(quest.getX(), quest.getY())),
+				projection, size.getMergeWithin(), 1);
+			log.debug("quest step: {} drawn at {}", quest, marks);
+			if (!marks.isEmpty())
+			{
+				drawMark(questMark, marks.get(0), config.questMarkColour(), size);
+			}
 		}
 
 		if (container != null)
 		{
 			container.revalidate();
 		}
+	}
+
+	/** One X, centred on a sprite pixel. Colour by tag and transparency by opacity, as the codes do. */
+	private void drawMark(Widget mark, java.awt.Point at, Color colour, ClueMarkSize size)
+	{
+		mark.setText(String.format("<col=%06x>X</col>", colour.getRGB() & 0xFFFFFF));
+		mark.setTextColor(colour.getRGB() & 0xFFFFFF);
+		mark.setOpacity(255 - colour.getAlpha());
+		mark.setFontId(size.getFontId());
+		box(mark,
+			mapOriginX + at.x - size.getWidth() / 2,
+			mapOriginY + at.y - size.getHeight() / 2,
+			size.getWidth(), size.getHeight());
+		mark.setHidden(false);
 	}
 
 	/** Whether a marker should be drawn as somewhere the player can actually go. */

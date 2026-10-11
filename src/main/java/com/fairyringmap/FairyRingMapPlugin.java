@@ -43,6 +43,9 @@ public class FairyRingMapPlugin extends Plugin
 	@Inject
 	private FairyRingMap map;
 
+	@Inject
+	private QuestTarget questTarget;
+
 	private MapSprite[] sprites;
 
 	@Provides
@@ -60,12 +63,17 @@ public class FairyRingMapPlugin extends Plugin
 		spriteManager.addSpriteOverrides(sprites);
 
 		eventBus.register(map);
+		// Separate from the map, and for the same whole life: the step's target is usually sent while
+		// the travel log is closed, so it has to be heard then and held until the map is drawn.
+		eventBus.register(questTarget);
 	}
 
 	@Override
 	protected void shutDown()
 	{
 		eventBus.unregister(map);
+		eventBus.unregister(questTarget);
+		questTarget.forget();
 
 		if (sprites != null)
 		{

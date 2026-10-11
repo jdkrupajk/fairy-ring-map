@@ -206,9 +206,9 @@ public interface FairyRingMapConfig extends Config
 
 	@ConfigItem(
 		keyName = "clueMarkSize",
-		name = "Clue X size",
-		description = "Which of the game's fonts the X is drawn in. Nearby clue spots share one X, "
-			+ "so a bigger X can mean fewer of them",
+		name = "X size",
+		description = "Which of the game's fonts the clue and quest step X's are drawn in. Nearby "
+			+ "clue spots share one X, so a bigger X can mean fewer of them",
 		position = 16
 	)
 	default ClueMarkSize clueMarkSize()
@@ -227,6 +227,32 @@ public interface FairyRingMapConfig extends Config
 	default boolean filterToClueRing()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		keyName = "showQuestTarget",
+		name = "Mark the quest step",
+		description = "Draw an X where Quest Helper's current step is. Needs Quest Helper's \"Use "
+			+ "'Shortest Path' plugin\" option switched on; Shortest Path itself need not be installed. "
+			+ "A step where Quest Helper draws its own route line sends no location, so shows no X. "
+			+ "Any other plugin that routes through Shortest Path moves this X too",
+		position = 18
+	)
+	default boolean showQuestTarget()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "questMarkColour",
+		name = "Quest X colour",
+		description = "Colour of the X marking the quest step",
+		position = 19
+	)
+	default Color questMarkColour()
+	{
+		return new Color(0xFF40FF);
 	}
 
 	// ---------------------------------------------------------------- the close-up's icons
